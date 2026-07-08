@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Speed Studio</title>
+<style>
+:root{
+  --bg:#0f1115;
+  --bg-elev:#161922;
+  --bg-elev-2:#1d212c;
+  --ink:#e9ecf1;
+  --ink-dim:#9aa3b2;
+  --ink-faint:#5b6474;
+  --accent:#00c896;
+  --accent-dim:#0a8f6c;
+  --accent-soft:rgba(0,200,150,0.14);
+  --error:#ff6b6b;
+  --error-soft:rgba(255,107,107,0.14);
+  --extra:#c98bff;
+  --border:#262b38;
+  --font-display:'Fraunces', Georgia, serif;
+  --font-mono:'JetBrains Mono', 'Consolas', monospace;
+  --font-ui:'Inter', system-ui, sans-serif;
+  --radius:14px;
+  --transition:180ms cubic-bezier(.4,0,.2,1);
+}
+[data-theme="light"]{
+  --bg:#f4f3ef;
+  --bg-elev:#ffffff;
+  --bg-elev-2:#ececE5;
+  --ink:#1a1d24;
+  --ink-dim:#5a6070;
+  --ink-faint:#9aa0ac;
+  --border:#dcdad2;
+}
+[data-accent="amber"]{ --accent:#d9a441; --accent-dim:#a9791f; --accent-soft:rgba(217,164,65,0.16);}
+[data-accent="violet"]{ --accent:#a48bff; --accent-dim:#7358d9; --accent-soft:rgba(164,139,255,0.16);}
+[data-accent="rose"]{ --accent:#ff7aa8; --accent-dim:#d94e82; --accent-soft:rgba(255,122,168,0.16);}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-ui);
+  min-height:100vh;
+  transition:background var(--transition), color var(--transition);
+  -webkit-font-smoothing:antialiased;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+::selection{background:var(--accent); color:#08110d;}
+a{color:inherit;}
+.app{max-width:1100px;margin:0 auto;padding:28px 24px 80px;}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap;}
+.brand{display:flex;align-items:baseline;gap:10px;}
+.brand .mark{font-family:var(--font-display);font-weight:600;font-size:26px;letter-spacing:-0.5px;}
+.brand .mark em{font-style:normal;color:var(--accent);}
+.brand .tag{font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:1.5px;}
+.header-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.icon-btn{
+  background:var(--bg-elev);border:1px solid var(--border);color:var(--ink-dim);
+  width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all var(--transition);font-size:16px;
+}
+.icon-btn:hover{color:var(--ink);border-color:var(--accent);}
+.icon-btn.active{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
+
+/* Letterhead - signature element: document header strip that morphs per category */
+.letterhead{
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  background:var(--bg-elev);
+  padding:14px 20px;
+  margin-bottom:18px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;
+  position:relative;
+  overflow:hidden;
+  transition:all var(--transition);
+}
+.letterhead::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent);
+  transition:background var(--transition);
+}
+.letterhead .lh-left{display:flex;align-items:center;gap:12px;}
+.letterhead .lh-glyph{
+  width:34px;height:34px;border-radius:8px;background:var(--accent-soft);
+  display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--accent);
+  font-family:var(--font-display);font-weight:600;
+}
+.letterhead .lh-title{font-family:var(--font-display);font-size:15px;font-weight:600;}
+.letterhead .lh-sub{font-size:11.5px;color:var(--ink-faint);margin-top:1px;}
+.letterhead .lh-meta{font-size:11px;color:var(--ink-faint);text-align:right;font-family:var(--font-mono);}
+
+/* Control bar */
+.controls{
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;
+}
+.pill-group{display:flex;background:var(--bg-elev);border:1px solid var(--border);border-radius:10px;padding:3px;gap:2px;}
+.pill{
+  padding:7px 13px;border-radius:8px;font-size:13px;color:var(--ink-dim);cursor:pointer;
+  border:none;background:transparent;font-family:var(--font-ui);transition:all var(--transition);white-space:nowrap;
+}
+.pill:hover{color:var(--ink);}
+.pill.active{background:var(--accent);color:#08120e;font-weight:600;}
+select.pill-select{
+  padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elev);
+  color:var(--ink);font-size:13px;font-family:var(--font-ui);cursor:pointer;
+}
+.controls .spacer{flex:1;}
+
+/* Typing area */
+.stage{
+  background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius);
+  padding:36px 34px;position:relative;transition:all var(--transition);
+}
+.stage.zen{background:var(--bg);border-color:transparent;}
+.stats-bar{
+  display:flex;gap:28px;margin-bottom:22px;flex-wrap:wrap;
+}
+.stat{display:flex;flex-direction:column;gap:2px;min-width:56px;}
+.stat .val{font-family:var(--font-mono);font-size:26px;font-weight:600;color:var(--accent);line-height:1;transition:color .2s;}
+.stat .lbl{font-size:10.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:1px;}
+.progress-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:26px;}
+.progress-fill{height:100%;background:var(--accent);width:0%;transition:width .15s linear;}
+
+.text-display{
+  font-family:var(--font-mono);
+  font-size:var(--type-size, 22px);
+  line-height:1.9;
+  letter-spacing:0.3px;
+  color:var(--ink-faint);
+  user-select:none;
+  min-height:140px;
+  outline:none;
+  word-wrap:break-word;
+}
+.text-display.focus-mode .td-line{display:none;}
+.text-display.focus-mode .td-line.active-line{display:block;}
+.td-line{margin-bottom:4px;}
+.ch{position:relative;transition:color .05s;}
+.ch.correct{color:var(--ink);}
+.ch.incorrect{color:var(--error);background:var(--error-soft);border-radius:2px;}
+.ch.extra{color:var(--extra);text-decoration:underline;}
+.ch.current{border-left:2px solid var(--accent);animation:blink 1s step-end infinite;}
+@keyframes blink{50%{border-color:transparent;}}
+.ch.current.pop{animation:pop .15s ease;}
+@keyframes pop{0%{transform:scale(1.3);}100%{transform:scale(1);}}
+
+.hidden-input{position:absolute;opacity:0;pointer-events:none;}
+.overlay-msg{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;
+  background:rgba(10,12,16,0.72);border-radius:var(--radius);backdrop-filter:blur(4px);
+  font-family:var(--font-display);font-size:22px;color:var(--ink);text-align:center;
+}
+[data-theme="light"] .overlay-msg{background:rgba(244,243,239,0.85);}
+.overlay-msg .sub{font-family:var(--font-ui);font-size:13px;color:var(--ink-dim);}
+.btn{
+  padding:10px 20px;border-radius:9px;border:1px solid var(--accent);background:var(--accent);
+  color:#08120e;font-weight:600;font-size:13.5px;cursor:pointer;transition:all var(--transition);font-family:var(--font-ui);
+}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--border);}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent);}
+
+.footer-actions{display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:10px;}
+.kbd-hint{font-size:11.5px;color:var(--ink-faint);font-family:var(--font-mono);}
+.kbd-hint kbd{background:var(--bg-elev-2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:var(--font-mono);}
+
+/* Custom text modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;}
+.modal-backdrop.show{display:flex;}
+.modal{background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:520px;width:100%;}
+.modal h3{font-family:var(--font-display);margin:0 0 14px;}
+.modal textarea{width:100%;min-height:140px;background:var(--bg-elev-2);border:1px solid var(--border);border-radius:8px;color:var(--ink);padding:12px;font-family:var(--font-mono);font-size:13px;resize:vertical;}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px;}
+
+/* Dashboard */
+.dashboard{margin-top:30px;display:none;}
+.dashboard.show{display:block;animation:fadein .4s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.dash-hero{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px;margin-bottom:20px;
+}
+.dash-card{background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center;}
+.dash-card .big{font-family:var(--font-display);font-size:34px;font-weight:600;color:var(--accent);}
+.dash-card .lbl{font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+.dash-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:16px;}
+@media(max-width:760px){.dash-grid{grid-template-columns:1fr;}}
+.panel{background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.panel h4{margin:0 0 12px;font-family:var(--font-display);font-size:15px;font-weight:600;}
+canvas{width:100%;display:block;}
+.heatmap{display:flex;flex-wrap:wrap;gap:6px;}
+.heat-key{
+  font-family:var(--font-mono);font-size:12px;padding:6px 9px;border-radius:6px;background:var(--bg-elev-2);
+  border:1px solid var(--border);color:var(--ink-dim);
+}
+.badges{display:flex;flex-wrap:wrap;gap:8px;}
+.badge{
+  display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:20px;background:var(--accent-soft);
+  border:1px solid var(--accent-dim);color:var(--accent);font-size:12px;font-weight:600;
+}
+.summary-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;}
+.summary-list li{font-size:13px;color:var(--ink-dim);padding-left:16px;position:relative;}
+.summary-list li::before{content:'—';position:absolute;left:0;color:var(--accent);}
+.history-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.history-table th{text-align:left;color:var(--ink-faint);font-weight:500;text-transform:uppercase;font-size:10.5px;letter-spacing:0.5px;padding:6px 8px;border-bottom:1px solid var(--border);}
+.history-table td{padding:7px 8px;border-bottom:1px solid var(--border);color:var(--ink-dim);font-family:var(--font-mono);}
+.history-table tr:hover td{color:var(--ink);}
+
+.settings-panel{display:none;position:absolute;right:24px;top:70px;background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius);padding:18px;width:260px;z-index:40;box-shadow:0 12px 32px rgba(0,0,0,0.35);}
+.settings-panel.show{display:block;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:13px;}
+.settings-row:last-child{margin-bottom:0;}
+.swatch-row{display:flex;gap:8px;}
+.swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+.swatch.on{border-color:var(--ink);}
+.range{width:120px;}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+</style>
+</head>
+<body data-theme="dark" data-accent="teal">
+<div class="app">
+
+  <header class="header">
+    <div class="brand">
+      <span class="mark">Typing Speed <em>Studio</em></span>
+      <span class="tag">Professional Practice Platform</span>
+    </div>
+    <div class="header-controls">
+      <button class="icon-btn" id="soundToggle" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+      <button class="icon-btn" id="themeToggle" title="Toggle light/dark" aria-label="Toggle theme">☾</button>
+      <button class="icon-btn" id="settingsToggle" title="Settings" aria-label="Settings">⚙</button>
+    </div>
+  </header>
+
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-row"><span>Accent color</span>
+      <div class="swatch-row">
+        <span class="swatch on" data-accent="teal" style="background:#00c896"></span>
+        <span class="swatch" data-accent="amber" style="background:#d9a441"></span>
+        <span class="swatch" data-accent="violet" style="background:#a48bff"></span>
+        <span class="swatch" data-accent="rose" style="background:#ff7aa8"></span>
+      </div>
+    </div>
+    <div class="settings-row"><span>Font size</span>
+      <input type="range" min="16" max="32" value="22" class="range" id="fontSizeRange">
+    </div>
+    <div class="settings-row"><span>Focus mode</span>
+      <input type="checkbox" id="focusModeToggle">
+    </div>
+    <div class="settings-row"><span>Clear history</span>
+      <button class="btn ghost" id="clearHistoryBtn" style="padding:5px 10px;font-size:11px;">Clear</button>
+    </div>
+  </div>
+
+  <div class="letterhead" id="letterhead">
+    <div class="lh-left">
+      <div class="lh-glyph" id="lhGlyph">B</div>
+      <div>
+        <div class="lh-title" id="lhTitle">Business Correspondence</div>
+        <div class="lh-sub" id="lhSub">Professional communication drills</div>
+      </div>
+    </div>
+    <div class="lh-meta" id="lhMeta">SESSION #<span id="sessionCount">1</span><br>BEST WPM <span id="bestWpmMeta">—</span></div>
+  </div>
+
+  <div class="controls">
+    <div class="pill-group" id="modeGroup">
+      <button class="pill active" data-mode="time">Time</button>
+      <button class="pill" data-mode="words">Words</button>
+      <button class="pill" data-mode="quote">Quote</button>
+      <button class="pill" data-mode="programming">Code</button>
+      <button class="pill" data-mode="custom">Custom</button>
+      <button class="pill" data-mode="adaptive">Adaptive</button>
+      <button class="pill" data-mode="zen">Zen</button>
+    </div>
+    <div class="pill-group" id="subOptionGroup"></div>
+    <div class="spacer"></div>
+    <select class="pill-select" id="categorySelect">
+      <option value="business">Business</option>
+      <option value="academic">Academic</option>
+      <option value="medical">Medical</option>
+      <option value="legal">Legal</option>
+      <option value="creative">Creative</option>
+    </select>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="stats-bar" aria-live="polite">
+      <div class="stat"><span class="val" id="statWpm">0</span><span class="lbl">WPM</span></div>
+      <div class="stat"><span class="val" id="statRaw">0</span><span class="lbl">Raw WPM</span></div>
+      <div class="stat"><span class="val" id="statAcc">100%</span><span class="lbl">Accuracy</span></div>
+      <div class="stat"><span class="val" id="statCpm">0</span><span class="lbl">CPM</span></div>
+      <div class="stat"><span class="val" id="statTime">0s</span><span class="lbl" id="statTimeLbl">Elapsed</span></div>
+      <div class="stat"><span class="val" id="statMistakes">0</span><span class="lbl">Mistakes</span></div>
+      <div class="stat"><span class="val" id="statStreak">0</span><span class="lbl">Streak</span></div>
+      <div class="stat"><span class="val" id="statPct">0%</span><span class="lbl">Complete</span></div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="text-display" id="textDisplay" tabindex="0"></div>
+    <input class="hidden-input" id="hiddenInput" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+
+    <div class="overlay-msg" id="overlayMsg" style="display:none;">
+      <div id="overlayText">Click here or press any key to begin</div>
+      <div class="sub" id="overlaySub">Ready when you are</div>
+      <button class="btn" id="overlayBtn">Start Typing</button>
+    </div>
+  </div>
+
+  <div class="footer-actions">
+    <span class="kbd-hint"><kbd>Tab</kbd>+<kbd>Enter</kbd> restart · <kbd>Esc</kbd> pause · <kbd>Ctrl+.</kbd> new text</span>
+    <div style="display:flex;gap:10px;">
+      <button class="btn ghost" id="restartBtn">↻ Restart</button>
+      <button class="btn ghost" id="newTextBtn">⟳ New Passage</button>
+    </div>
+  </div>
+
+  <div class="dashboard" id="dashboard">
+    <div class="dash-hero">
+      <div class="dash-card"><div class="big" id="dashWpm">0</div><div class="lbl">WPM</div></div>
+      <div class="dash-card"><div class="big" id="dashAcc">0%</div><div class="lbl">Accuracy</div></div>
+      <div class="dash-card"><div class="big" id="dashConsistency">0%</div><div class="lbl">Consistency</div></div>
+      <div class="dash-card"><div class="big" id="dashPct">0%</div><div class="lbl">Percentile</div></div>
+    </div>
+    <div class="dash-grid">
+      <div class="panel">
+        <h4>WPM over time</h4>
+        <canvas id="wpmChart" height="160"></canvas>
+      </div>
+      <div class="panel">
+        <h4>Character breakdown</h4>
+        <div id="charBreakdown" style="font-family:var(--font-mono);font-size:13px;line-height:2;"></div>
+      </div>
+    </div>
+    <div class="dash-grid">
+      <div class="panel">
+        <h4>Error heatmap</h4>
+        <div class="heatmap" id="heatmap"></div>
+      </div>
+      <div class="panel">
+        <h4>Achievements</h4>
+        <div class="badges" id="badges"></div>
+      </div>
+    </div>
+    <div class="panel" style="margin-bottom:16px;">
+      <h4>Performance summary</h4>
+      <ul class="summary-list" id="summaryList"></ul>
+    </div>
+    <div class="panel">
+      <h4>Session history</h4>
+      <table class="history-table">
+        <thead><tr><th>#</th><th>Mode</th><th>Category</th><th>WPM</th><th>Acc</th><th>Date</th></tr></thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-backdrop" id="customModal">
+  <div class="modal">
+    <h3>Paste your custom text</h3>
+    <textarea id="customTextArea" placeholder="Paste or type the passage you'd like to practice..."></textarea>
+    <div class="modal-actions">
+      <button class="btn ghost" id="customCancel">Cancel</button>
+      <button class="btn" id="customApply">Use this text</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- Content Banks ---------------- */
+const BANKS = {
+business: [
+"Please find attached the revised proposal for your review ahead of tomorrow's meeting.",
+"We appreciate your patience as we work through the remaining approval steps with the finance team.",
+"Our quarterly targets remain on track despite the recent supply chain disruptions affecting the region.",
+"The stakeholders have requested a revised timeline that accommodates the vendor's updated delivery schedule.",
+"Kindly confirm your availability for a follow up call to discuss the contract renewal terms.",
+"Management has approved the budget reallocation pending final sign off from the compliance department.",
+"Thank you for your continued partnership; we look forward to expanding our collaboration next fiscal year.",
+"The board will convene next week to evaluate the merger proposal and its projected synergies.",
+"Please circulate the meeting minutes to all department heads before the end of business today.",
+"Our client success team will reach out shortly to schedule the onboarding session for your account.",
+"The marketing department has finalized the campaign brief and is awaiting creative approval from leadership.",
+"We regret to inform you that the shipment has been delayed due to customs processing issues.",
+"Attached please find the invoice for services rendered during the previous billing cycle.",
+"The negotiation reached a favorable outcome after both parties agreed to revised payment terms.",
+"Human resources will distribute the updated employee handbook by the start of next quarter."
+],
+academic: [
+"The hypothesis was tested using a controlled experimental design across three independent variables.",
+"Recent scholarship has challenged the prevailing consensus regarding the origins of the phenomenon.",
+"The literature review synthesizes findings from over forty peer reviewed studies published since 2015.",
+"Statistical significance was determined using a two tailed t test with an alpha level of 0.05.",
+"The methodology section outlines the sampling procedure and the criteria for participant inclusion.",
+"Further research is required to establish causality rather than mere correlation between the variables.",
+"The theoretical framework draws upon constructivist principles to explain the observed behavior.",
+"Data were collected through longitudinal surveys administered at three distinct intervals over two years.",
+"The findings suggest a moderate effect size, though replication across diverse populations is warranted.",
+"Citations must adhere strictly to the formatting guidelines specified by the journal's editorial board.",
+"The dissertation committee raised concerns regarding the generalizability of the proposed model.",
+"An interdisciplinary approach was adopted, integrating perspectives from sociology and cognitive psychology.",
+"The abstract should concisely summarize the research question, methodology, and principal conclusions.",
+"Peer review comments indicated that the discussion section required substantial revision.",
+"The conference proceedings will include a keynote address on emerging trends in the discipline."
+],
+medical: [
+"The patient presented with acute abdominal pain radiating to the lower right quadrant.",
+"Administer the medication intravenously over thirty minutes to minimize the risk of adverse reaction.",
+"Vital signs remained stable throughout the procedure with oxygen saturation above ninety five percent.",
+"The diagnosis was confirmed through a combination of laboratory results and imaging studies.",
+"Chronic hypertension increases the likelihood of cardiovascular complications if left untreated.",
+"The attending physician recommended a follow up appointment in two weeks to monitor recovery.",
+"Symptoms included persistent fatigue, mild fever, and intermittent joint pain over several weeks.",
+"The surgical team proceeded with a minimally invasive laparoscopic approach to reduce recovery time.",
+"Contraindications for this medication include a history of renal impairment or hepatic dysfunction.",
+"Nursing staff should monitor the patient closely for signs of infection at the incision site.",
+"The prescribed dosage should be adjusted based on the patient's weight and kidney function.",
+"Preliminary blood work revealed elevated white blood cell counts consistent with infection.",
+"The patient was advised to maintain a low sodium diet to manage blood pressure effectively.",
+"Post operative instructions include rest, gradual mobilization, and scheduled physical therapy sessions.",
+"The clinical trial demonstrated a statistically significant reduction in symptom severity over twelve weeks."
+],
+legal: [
+"The plaintiff alleges breach of contract arising from the defendant's failure to deliver goods.",
+"Pursuant to section twelve of the agreement, either party may terminate with thirty days notice.",
+"The court found insufficient evidence to support the claim of negligence beyond reasonable doubt.",
+"Counsel for the respondent filed a motion to dismiss citing lack of jurisdiction.",
+"The parties hereby agree to submit any disputes to binding arbitration in accordance with the rules.",
+"This agreement shall be governed by and construed in accordance with the laws of the jurisdiction.",
+"The defendant was found liable for damages resulting from the breach of fiduciary duty.",
+"All amendments to this contract must be executed in writing and signed by both parties.",
+"The appellant seeks review of the lower court's ruling on grounds of procedural error.",
+"Confidential information disclosed under this agreement shall not be shared with third parties.",
+"The tribunal ruled that the non compete clause was unenforceable due to its overly broad scope.",
+"Each party shall indemnify the other against claims arising from its own negligence or misconduct.",
+"The statute of limitations for filing such claims expires three years from the date of injury.",
+"The settlement agreement includes a confidentiality provision preventing public disclosure of terms.",
+"Witnesses were called to testify regarding the sequence of events on the night in question."
+],
+creative: [
+"The old lighthouse keeper watched the storm roll in, each wave a memory he refused to forget.",
+"She folded the letter twice before slipping it beneath the loose floorboard, where secrets went to sleep.",
+"Autumn arrived quietly that year, painting the hills in shades of rust and forgotten gold.",
+"He counted the stars the way other men counted regrets, one for every year he had wasted.",
+"The market smelled of cardamom and rain, a fragrance that clung to her coat for days after.",
+"In the silence between thunderclaps, the child believed she could hear the mountain breathing.",
+"The violin sat untouched in the corner, its strings loosened by years of unspoken apology.",
+"Every morning the fisherman spoke to the sea as though it might finally answer him back.",
+"The library at midnight felt less like a room and more like a held breath.",
+"Her grandmother's recipes were written in a language of stains rather than words.",
+"The train pulled away before he could decide whether to chase it or let the moment go.",
+"Somewhere between the second and third cup of coffee, the manuscript finally began to make sense.",
+"The garden had grown wild in her absence, as if it too were mourning something unnamed.",
+"He kept the ticket stub long after the theater closed, a small ruin of a happier winter.",
+"The lantern flickered once, twice, then steadied, as though gathering courage for what came next."
+]
+};
+
+const QUOTES = [
+"The only way to do great work is to love what you do, and to keep doing it even when no one is watching.",
+"Success is not final, failure is not fatal; it is the courage to continue that counts in the end.",
+"In the middle of every difficulty lies opportunity, waiting patiently for someone willing to look closer.",
+"The future belongs to those who believe in the beauty of their dreams and act on them daily.",
+"It is during our darkest moments that we must focus to see the light guiding us forward.",
+"Whether you think you can or you think you cannot, you are usually right about the outcome.",
+"The only limit to our realization of tomorrow will be our doubts of today and our fears of failure."
+];
+
+const CODE_SNIPPETS = {
+HTML: [
+'<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Document</title>\n</head>\n<body>\n  <h1>Hello, world!</h1>\n</body>\n</html>',
+'<form action="/submit" method="post">\n  <label for="email">Email</label>\n  <input type="email" id="email" name="email" required>\n  <button type="submit">Send</button>\n</form>'
+],
+CSS: [
+'.card {\n  display: flex;\n  flex-direction: column;\n  padding: 16px;\n  border-radius: 8px;\n  box-shadow: 0 2px 6px rgba(0,0,0,0.15);\n}',
+'@media (max-width: 768px) {\n  .container {\n    grid-template-columns: 1fr;\n    gap: 12px;\n  }\n}'
+],
+JavaScript: [
+'function debounce(fn, delay) {\n  let timer;\n  return (...args) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn(...args), delay);\n  };\n}',
+'const fetchData = async (url) => {\n  const res = await fetch(url);\n  if (!res.ok) throw new Error("Request failed");\n  return res.json();\n};'
+],
+Python: [
+'def quicksort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    right = [x for x in arr if x > pivot]\n    return quicksort(left) + [pivot] + quicksort(right)',
+'class Node:\n    def __init__(self, value):\n        self.value = value\n        self.next = None\n\n    def __repr__(self):\n        return f"Node({self.value})"'
+],
+Java: [
+'public class Stack<T> {\n    private List<T> items = new ArrayList<>();\n    public void push(T item) { items.add(item); }\n    public T pop() {\n        return items.remove(items.size() - 1);\n    }\n}'
+],
+"C++": [
+'#include <vector>\nint binarySearch(std::vector<int>& arr, int target) {\n    int lo = 0, hi = arr.size() - 1;\n    while (lo <= hi) {\n        int mid = (lo + hi) / 2;\n        if (arr[mid] == target) return mid;\n        if (arr[mid] < target) lo = mid + 1; else hi = mid - 1;\n    }\n    return -1;\n}'
+],
+SQL: [
+'SELECT customers.name, SUM(orders.total) AS revenue\nFROM customers\nJOIN orders ON customers.id = orders.customer_id\nGROUP BY customers.name\nORDER BY revenue DESC\nLIMIT 10;'
+]
+};
+
+const CATEGORY_META = {
+business:{glyph:"B",title:"Business Correspondence",sub:"Professional communication drills"},
+academic:{glyph:"A",title:"Academic Discourse",sub:"Research and scholarly writing"},
+medical:{glyph:"M",title:"Clinical Documentation",sub:"Medical terminology practice"},
+legal:{glyph:"§",title:"Legal Drafting",sub:"Contracts, briefs & statutes"},
+creative:{glyph:"C",title:"Creative Manuscript",sub:"Literary and narrative prose"}
+};
+
+/* ---------------- State ---------------- */
+let state = {
+  mode:"time",
+  timeOption:30,
+  wordsOption:50,
+  codeLang:"JavaScript",
+  category:"business",
+  focusMode:false,
+  soundOn:true,
+  running:false,
+  paused:false,
+  finished:false,
+  startTime:null,
+  elapsed:0,
+  chars:[], // {char, status: 'pending'|'correct'|'incorrect'|'extra'}
+  typedCount:0,
+  mistakeCount:0,
+  totalKeystrokes:0,
+  correctChars:0,
+  incorrectChars:0,
+  extraChars:0,
+  missedChars:0,
+  streak:0,
+  bestStreak:0,
+  wpmSamples:[], // {t, wpm, raw}
+  mistakeKeys:{},
+  timerId:null,
+  targetWords:null,
+  sessionNum:1
+};
+
+const els = {};
+["textDisplay","hiddenInput","statWpm","statRaw","statAcc","statCpm","statTime","statTimeLbl","statMistakes","statStreak","statPct",
+"progressFill","overlayMsg","overlayText","overlaySub","overlayBtn","stage","dashboard","dashWpm","dashAcc","dashConsistency","dashPct",
+"wpmChart","charBreakdown","heatmap","badges","summaryList","historyBody","lhGlyph","lhTitle","lhSub","sessionCount","bestWpmMeta",
+"categorySelect","subOptionGroup","customModal","customTextArea","customCancel","customApply","settingsPanel","fontSizeRange",
+"focusModeToggle","clearHistoryBtn","letterhead"
+].forEach(id=>els[id]=document.getElementById(id));
+
+/* ---------------- Persistence ---------------- */
+const STORAGE_KEY = "tss_history_v1";
+const BEST_KEY = "tss_bests_v1";
+function loadHistory(){ try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||[];}catch(e){return [];} }
+function saveHistory(list){ localStorage.setItem(STORAGE_KEY, JSON.stringify(list.slice(-100))); }
+function loadBests(){ try{return JSON.parse(localStorage.getItem(BEST_KEY))||{};}catch(e){return {};} }
+function saveBests(b){ localStorage.setItem(BEST_KEY, JSON.stringify(b)); }
+
+function updateSessionMeta(){
+  const hist = loadHistory();
+  els.sessionCount.textContent = hist.length + 1;
+  const bests = loadBests();
+  const key = state.category + "_" + state.mode;
+  els.bestWpmMeta.textContent = bests[key] ? Math.round(bests[key]) : "—";
+}
+
+/* ---------------- Sound ---------------- */
+let audioCtx;
+function beep(freq, dur, vol){
+  if(!state.soundOn) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.frequency.value = freq; o.type = "sine";
+    g.gain.value = vol;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + dur);
+  }catch(e){}
+}
+
+/* ---------------- Text generation ---------------- */
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function wordCountOf(str){ return str.trim().split(/\s+/).filter(Boolean).length; }
+
+function buildParagraph(category, minWords){
+  const pool = shuffle(BANKS[category]);
+  let out = [];
+  let count = 0;
+  let i = 0;
+  while(count < minWords){
+    const sentence = pool[i % pool.length];
+    out.push(sentence);
+    count += wordCountOf(sentence);
+    i++;
+    if(i > 60) break;
+  }
+  return out.join(" ");
+}
+
+function generateText(){
+  let text = "";
+  if(state.mode === "quote"){
+    text = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  } else if(state.mode === "programming"){
+    const snippets = CODE_SNIPPETS[state.codeLang] || CODE_SNIPPETS.JavaScript;
+    text = snippets[Math.floor(Math.random()*snippets.length)];
+  } else if(state.mode === "custom"){
+    text = state.customText || "Paste your own text using the New Passage button to begin practicing with custom content.";
+  } else if(state.mode === "words"){
+    text = buildParagraph(state.category, state.wordsOption);
+    const words = text.trim().split(/\s+/).slice(0, state.wordsOption);
+    text = words.join(" ");
+  } else if(state.mode === "zen"){
+    text = buildParagraph(state.category, 60);
+  } else if(state.mode === "adaptive"){
+    const difficultyWords = adaptiveTargetWords();
+    text = buildParagraph(state.category, difficultyWords);
+  } else { // time
+    text = buildParagraph(state.category, 120);
+  }
+  return text;
+}
+
+function adaptiveTargetWords(){
+  const bests = loadBests();
+  const key = state.category + "_adaptive_wpm";
+  const wpm = bests[key] || 35;
+  return Math.max(30, Math.min(150, Math.round(wpm * 1.4)));
+}
+
+/* ---------------- Rendering ---------------- */
+function renderText(text){
+  els.textDisplay.innerHTML = "";
+  state.chars = [];
+  const lines = wrapIntoLines(text);
+  let globalIndex = 0;
+  lines.forEach((line, li)=>{
+    const lineEl = document.createElement("div");
+    lineEl.className = "td-line" + (li===0?" active-line":"");
+    lineEl.dataset.line = li;
+    for(const ch of line){
+      const span = document.createElement("span");
+      span.className = "ch";
+      span.textContent = ch;
+      span.dataset.index = globalIndex;
+      lineEl.appendChild(span);
+      state.chars.push({char:ch, status:"pending", el:span, line:li});
+      globalIndex++;
+    }
+    els.textDisplay.appendChild(lineEl);
+  });
+  state.fullText = text;
+  markCurrent(0);
+}
+
+function wrapIntoLines(text){
+  // preserve real newlines (code), plus soft-wrap long plain text into readable lines
+  if(text.includes("\n")) return text.split("\n").map(l=>l+"\n").map((l,i,arr)=> i<arr.length-1? l : l.replace(/\n$/,""));
+  const words = text.split(" ");
+  const lines = [];
+  let cur = "";
+  words.forEach((w,i)=>{
+    const test = cur ? cur + " " + w : w;
+    if(test.length > 70){ lines.push(cur); cur = w; } else { cur = test; }
+  });
+  if(cur) lines.push(cur);
+  return lines.map((l,i)=> i<lines.length-1 ? l+" " : l);
+}
+
+let currentIdx = 0;
+function markCurrent(idx){
+  state.chars.forEach(c=>c.el.classList.remove("current"));
+  if(state.chars[idx]){
+    state.chars[idx].el.classList.add("current","pop");
+    setTimeout(()=>{ if(state.chars[idx]) state.chars[idx].el.classList.remove("pop"); }, 150);
+    scrollToActive(state.chars[idx].line);
+  }
+}
+
+function scrollToActive(lineIdx){
+  if(!state.focusMode) return;
+  document.querySelectorAll(".td-line").forEach(l=> l.classList.remove("active-line"));
+  const target = document.querySelector('.td-line[data-line="'+lineIdx+'"]');
+  if(target) target.classList.add("active-line");
+}
+
+/* ---------------- Typing engine ---------------- */
+function startSession(){
+  state.running = true;
+  state.paused = false;
+  state.finished = false;
+  state.startTime = Date.now();
+  state.elapsed = 0;
+  currentIdx = 0;
+  state.typedCount = 0;
+  state.mistakeCount = 0;
+  state.totalKeystrokes = 0;
+  state.correctChars = 0;
+  state.incorrectChars = 0;
+  state.extraChars = 0;
+  state.streak = 0;
+  state.bestStreak = 0;
+  state.wpmSamples = [];
+  state.mistakeKeys = {};
+  els.overlayMsg.style.display = "none";
+  els.dashboard.classList.remove("show");
+  clearInterval(state.timerId);
+  state.timerId = setInterval(tick, 250);
+  els.hiddenInput.focus();
+}
+
+function tick(){
+  if(!state.running || state.paused || state.finished) return;
+  state.elapsed = (Date.now() - state.startTime) / 1000;
+  updateLiveStats();
+  state.wpmSamples.push({t: state.elapsed, wpm: computeWpm(), raw: computeRawWpm()});
+  if(state.mode === "time" && state.elapsed >= state.timeOption){
+    finishSession();
+  }
+}
+
+function computeWpm(){
+  const minutes = Math.max(state.elapsed/60, 1/600);
+  return Math.max(0, (state.correctChars/5) / minutes);
+}
+function computeRawWpm(){
+  const minutes = Math.max(state.elapsed/60, 1/600);
+  return Math.max(0, (state.totalKeystrokes/5) / minutes);
+}
+function computeAccuracy(){
+  const total = state.correctChars + state.incorrectChars;
+  if(total === 0) return 100;
+  return Math.max(0, (state.correctChars/total)*100);
+}
+
+function updateLiveStats(){
+  const wpm = computeWpm();
+  const raw = computeRawWpm();
+  els.statWpm.textContent = Math.round(wpm);
+  els.statRaw.textContent = Math.round(raw);
+  els.statAcc.textContent = computeAccuracy().toFixed(0)+"%";
+  els.statCpm.textContent = Math.round(state.correctChars/(Math.max(state.elapsed/60,1/600)));
+  els.statTime.textContent = state.mode==="time" ? Math.max(0,Math.ceil(state.timeOption-state.elapsed))+"s" : Math.round(state.elapsed)+"s";
+  els.statTimeLbl.textContent = state.mode==="time" ? "Remaining" : "Elapsed";
+  els.statMistakes.textContent = state.mistakeCount;
+  els.statStreak.textContent = state.streak;
+  const total = state.chars.length;
+  const pct = total ? Math.min(100, (currentIdx/total)*100) : 0;
+  els.statPct.textContent = Math.round(pct)+"%";
+  els.progressFill.style.width = pct+"%";
+}
+
+function handleKey(e){
+  if(state.finished) return;
+  if(e.key === "Escape"){ togglePause(); return; }
+  if(e.key === "Tab"){ e.preventDefault(); return; }
+  if(!state.running){
+    if(e.key.length===1 || e.key==="Backspace"){ startSession(); } else { return; }
+  }
+  if(state.paused) return;
+
+  if(e.key === "Backspace"){
+    e.preventDefault();
+    if(currentIdx>0){
+      currentIdx--;
+      const c = state.chars[currentIdx];
+      if(c.status==="correct") state.correctChars--;
+      if(c.status==="incorrect") state.incorrectChars--;
+      c.status = "pending";
+      c.el.className = "ch";
+      markCurrent(currentIdx);
+    }
+    return;
+  }
+  if(e.key.length !== 1) return;
+  e.preventDefault();
+
+  const expected = state.chars[currentIdx];
+  state.totalKeystrokes++;
+  if(!expected){
+    // extra char beyond text length
+    return;
+  }
+  if(e.key === expected.char){
+    expected.status = "correct";
+    expected.el.className = "ch correct";
+    state.correctChars++;
+    state.streak++;
+    state.bestStreak = Math.max(state.bestStreak, state.streak);
+    beep(660,0.04,0.03);
+  } else {
+    expected.status = "incorrect";
+    expected.el.className = "ch incorrect";
+    state.incorrectChars++;
+    state.mistakeCount++;
+    state.streak = 0;
+    state.mistakeKeys[expected.char] = (state.mistakeKeys[expected.char]||0)+1;
+    beep(180,0.08,0.05);
+  }
+  currentIdx++;
+  markCurrent(currentIdx);
+  updateLiveStats();
+
+  const doneByText = currentIdx >= state.chars.length;
+  const doneByWords = (state.mode==="words") && currentIdx >= state.chars.length;
+  if(doneByText && state.mode !== "time" && state.mode !== "zen"){
+    finishSession();
+  } else if(doneByText && state.mode === "zen"){
+    // extend zen text
+    extendZen();
+  }
+}
+
+function extendZen(){
+  const more = buildParagraph(state.category, 40);
+  const before = state.fullText;
+  state.fullText = before + " " + more;
+  renderText(state.fullText);
+  currentIdx = before.length; // approx; acceptable for zen continuity
+  // re-mark previous chars as correct-visual (already typed) is skipped for simplicity in zen
+}
+
+function togglePause(){
+  if(!state.running || state.finished) return;
+  state.paused = !state.paused;
+  if(state.paused){
+    showOverlay("Paused", "Press Esc to resume", "Resume");
+  } else {
+    els.overlayMsg.style.display = "none";
+    state.startTime = Date.now() - state.elapsed*1000;
+    els.hiddenInput.focus();
+  }
+}
+
+function showOverlay(title, sub, btnLabel){
+  els.overlayText.textContent = title;
+  els.overlaySub.textContent = sub;
+  els.overlayBtn.textContent = btnLabel;
+  els.overlayMsg.style.display = "flex";
+}
+
+/* ---------------- Finish & Dashboard ---------------- */
+function finishSession(){
+  state.finished = true;
+  state.running = false;
+  clearInterval(state.timerId);
+  state.elapsed = Math.max(state.elapsed, 0.5);
+  const wpm = computeWpm();
+  const raw = computeRawWpm();
+  const acc = computeAccuracy();
+  const total = state.chars.length;
+  state.missedChars = Math.max(0, total - (state.correctChars+state.incorrectChars));
+
+  const record = {
+    mode: state.mode, category: state.category, wpm: wpm, raw: raw, acc: acc,
+    date: new Date().toISOString(), mistakes: state.mistakeCount, duration: state.elapsed
+  };
+  const hist = loadHistory();
+  hist.push(record);
+  saveHistory(hist);
+
+  const bests = loadBests();
+  const key = state.category + "_" + state.mode;
+  if(!bests[key] || wpm > bests[key]) bests[key] = wpm;
+  const adaptiveKey = state.category + "_adaptive_wpm";
+  if(state.mode==="adaptive") bests[adaptiveKey] = wpm;
+  saveBests(bests);
+  updateSessionMeta();
+
+  renderDashboard(record, hist);
+  showOverlay("Session complete", "Scroll down for your analytics", "Restart");
+}
+
+function computeConsistency(){
+  const samples = state.wpmSamples.map(s=>s.wpm).filter(v=>v>0);
+  if(samples.length<2) return 100;
+  const mean = samples.reduce((a,b)=>a+b,0)/samples.length;
+  const variance = samples.reduce((a,b)=>a+Math.pow(b-mean,2),0)/samples.length;
+  const stdev = Math.sqrt(variance);
+  const cv = mean ? stdev/mean : 0;
+  return Math.max(0, Math.min(100, 100 - cv*100));
+}
+
+function estimatePercentile(wpm){
+  // heuristic distribution roughly modeled on typical typing speed norms
+  const points = [ [10,5],[20,15],[30,30],[40,50],[55,70],[70,85],[90,93],[110,97],[130,99] ];
+  for(let i=0;i<points.length;i++){
+    if(wpm <= points[i][0]) return points[i][1];
+  }
+  return 99;
+}
+
+function renderDashboard(record, hist){
+  els.dashWpm.textContent = Math.round(record.wpm);
+  els.dashAcc.textContent = record.acc.toFixed(1)+"%";
+  const consistency = computeConsistency();
+  els.dashConsistency.textContent = Math.round(consistency)+"%";
+  els.dashPct.textContent = estimatePercentile(record.wpm)+"th";
+
+  drawWpmChart();
+  renderCharBreakdown();
+  renderHeatmap();
+  renderBadges(record, hist);
+  renderSummary(record, consistency);
+  renderHistoryTable(hist);
+
+  els.dashboard.classList.add("show");
+}
+
+function drawWpmChart(){
+  const canvas = els.wpmChart;
+  const ctx = canvas.getContext("2d");
+  const w = canvas.clientWidth || 400;
+  const h = 160;
+  canvas.width = w * devicePixelRatio; canvas.height = h * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0,0,w,h);
+  const samples = state.wpmSamples;
+  if(samples.length < 2){ return; }
+  const maxWpm = Math.max(...samples.map(s=>Math.max(s.wpm,s.raw)), 10);
+  const styleAccent = getComputedStyle(document.body).getPropertyValue('--accent').trim();
+  const styleFaint = getComputedStyle(document.body).getPropertyValue('--ink-faint').trim();
+
+  function plot(key, color){
+    ctx.beginPath();
+    samples.forEach((s,i)=>{
+      const x = (i/(samples.length-1))*w;
+      const y = h - (s[key]/maxWpm)*h*0.9 - 5;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+  }
+  plot("raw", styleFaint);
+  plot("wpm", styleAccent);
+}
+
+function renderCharBreakdown(){
+  const rows = [
+    ["Correct", state.correctChars, "var(--accent)"],
+    ["Incorrect", state.incorrectChars, "var(--error)"],
+    ["Extra", state.extraChars, "var(--extra)"],
+    ["Missed", state.missedChars, "var(--ink-faint)"]
+  ];
+  els.charBreakdown.innerHTML = rows.map(r=>
+    `<div style="display:flex;justify-content:space-between;"><span style="color:${r[2]}">${r[0]}</span><span>${r[1]}</span></div>`
+  ).join("");
+}
+
+function renderHeatmap(){
+  const entries = Object.entries(state.mistakeKeys).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  if(entries.length===0){
+    els.heatmap.innerHTML = '<span style="color:var(--ink-faint);font-size:13px;">No mistakes recorded — clean run.</span>';
+    return;
+  }
+  els.heatmap.innerHTML = entries.map(([k,v])=>
+    `<span class="heat-key">${k===" "?"␣":k} × ${v}</span>`
+  ).join("");
+}
+
+function renderBadges(record, hist){
+  const badges = [];
+  if(record.acc >= 98) badges.push("Precision Ace");
+  if(record.wpm >= 60) badges.push("Speed Demon");
+  if(record.wpm >= 90) badges.push("Elite Typist");
+  if(state.bestStreak >= 50) badges.push("Streak Master");
+  if(hist.length >= 10) badges.push("Dedicated Practitioner");
+  if(hist.length === 1) badges.push("First Session");
+  const consistency = computeConsistency();
+  if(consistency >= 85) badges.push("Steady Rhythm");
+  if(badges.length===0) badges.push("Session Logged");
+  els.badges.innerHTML = badges.map(b=>`<span class="badge">★ ${b}</span>`).join("");
+}
+
+function renderSummary(record, consistency){
+  const items = [];
+  items.push(`Typed at ${Math.round(record.wpm)} WPM with ${record.acc.toFixed(1)}% accuracy over ${Math.round(record.duration)}s.`);
+  if(record.acc < 90){
+    items.push("Accuracy dipped below 90% — slowing down slightly on unfamiliar words may help.");
+  } else {
+    items.push("Strong accuracy this session — your error rate stayed low throughout.");
+  }
+  const topMistakes = Object.entries(state.mistakeKeys).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]);
+  if(topMistakes.length){
+    items.push(`Most frequently mistyped characters: ${topMistakes.map(c=>c===" "?"space":`"${c}"`).join(", ")}.`);
+  }
+  items.push(consistency >= 80 ? "Your pace stayed consistent — a sign of steady rhythm." : "Your pace fluctuated — short bursts of practice on the same passage can smooth this out.");
+  items.push(`Category focus: ${CATEGORY_META[record.category] ? CATEGORY_META[record.category].title : record.category}.`);
+  els.summaryList.innerHTML = items.map(i=>`<li>${i}</li>`).join("");
+}
+
+function renderHistoryTable(hist){
+  const rows = hist.slice(-12).reverse().map((h,i)=>{
+    const d = new Date(h.date);
+    return `<tr><td>${hist.length-i}</td><td>${h.mode}</td><td>${h.category}</td><td>${Math.round(h.wpm)}</td><td>${h.acc.toFixed(0)}%</td><td>${d.toLocaleDateString()}</td></tr>`;
+  }).join("");
+  els.historyBody.innerHTML = rows || '<tr><td colspan="6" style="color:var(--ink-faint);">No sessions yet.</td></tr>';
+}
+
+/* ---------------- UI wiring ---------------- */
+function updateLetterhead(){
+  if(state.mode === "programming"){
+    els.lhGlyph.textContent = "</>";
+    els.lhTitle.textContent = state.codeLang + " Snippets";
+    els.lhSub.textContent = "Syntax-aware code practice";
+  } else if(state.mode === "quote"){
+    els.lhGlyph.textContent = "“";
+    els.lhTitle.textContent = "Quote Practice";
+    els.lhSub.textContent = "Timeless lines, typed anew";
+  } else if(state.mode === "custom"){
+    els.lhGlyph.textContent = "✎";
+    els.lhTitle.textContent = "Custom Passage";
+    els.lhSub.textContent = "Your own text, your own pace";
+  } else {
+    const meta = CATEGORY_META[state.category];
+    els.lhGlyph.textContent = meta.glyph;
+    els.lhTitle.textContent = meta.title;
+    els.lhSub.textContent = meta.sub;
+  }
+}
+
+function buildSubOptions(){
+  els.subOptionGroup.innerHTML = "";
+  let opts = [];
+  if(state.mode === "time") opts = [15,30,60,120].map(v=>({label:v+"s", value:v}));
+  else if(state.mode === "words") opts = [25,50,100,250].map(v=>({label:v, value:v}));
+  else if(state.mode === "programming") opts = Object.keys(CODE_SNIPPETS).map(l=>({label:l, value:l}));
+  if(opts.length===0){ els.subOptionGroup.style.display="none"; return; }
+  els.subOptionGroup.style.display="flex";
+  opts.forEach((o,i)=>{
+    const btn = document.createElement("button");
+    btn.className = "pill" + (i===0?" active":"");
+    btn.textContent = o.label;
+    btn.dataset.value = o.value;
+    btn.addEventListener("click", ()=>{
+      [...els.subOptionGroup.children].forEach(c=>c.classList.remove("active"));
+      btn.classList.add("active");
+      if(state.mode==="time") state.timeOption = o.value;
+      if(state.mode==="words") state.wordsOption = o.value;
+      if(state.mode==="programming") state.codeLang = o.value;
+      resetToNewText();
+    });
+    els.subOptionGroup.appendChild(btn);
+  });
+  if(state.mode==="time") state.timeOption = opts[0].value;
+  if(state.mode==="words") state.wordsOption = opts[0].value;
+  if(state.mode==="programming") state.codeLang = opts[0].value;
+}
+
+function resetToNewText(){
+  clearInterval(state.timerId);
+  state.running = false; state.paused = false; state.finished = false;
+  currentIdx = 0;
+  els.dashboard.classList.remove("show");
+  updateLetterhead();
+  updateSessionMeta();
+  const text = generateText();
+  renderText(text);
+  applyFocusModeClass();
+  showOverlay("Ready", "Click here or press any key to begin", "Start Typing");
+  updateLiveStats();
+}
+
+function applyFocusModeClass(){
+  els.textDisplay.classList.toggle("focus-mode", state.focusMode);
+  els.stage.classList.toggle("zen", state.mode==="zen");
+}
+
+document.getElementById("modeGroup").addEventListener("click", (e)=>{
+  const btn = e.target.closest(".pill");
+  if(!btn) return;
+  [...document.getElementById("modeGroup").children].forEach(c=>c.classList.remove("active"));
+  btn.classList.add("active");
+  state.mode = btn.dataset.mode;
+  if(state.mode === "custom"){ els.customModal.classList.add("show"); }
+  buildSubOptions();
+  const catDisabled = ["quote","programming","custom"].includes(state.mode);
+  els.categorySelect.style.display = catDisabled ? "none" : "inline-block";
+  resetToNewText();
+});
+
+els.categorySelect.addEventListener("change", ()=>{
+  state.category = els.categorySelect.value;
+  resetToNewText();
+});
+
+document.getElementById("restartBtn").addEventListener("click", ()=>{
+  clearInterval(state.timerId);
+  state.running=false; state.paused=false; state.finished=false; currentIdx=0;
+  renderText(state.fullText);
+  els.dashboard.classList.remove("show");
+  showOverlay("Ready", "Click here or press any key to begin", "Start Typing");
+  updateLiveStats();
+});
+
+document.getElementById("newTextBtn").addEventListener("click", resetToNewText);
+els.overlayBtn.addEventListener("click", ()=>{
+  if(state.paused){ togglePause(); } else { els.hiddenInput.focus(); }
+});
+
+els.textDisplay.addEventListener("click", ()=> els.hiddenInput.focus());
+els.hiddenInput.addEventListener("keydown", handleKey);
+document.addEventListener("keydown", (e)=>{
+  if(e.ctrlKey && e.key === "."){ e.preventDefault(); resetToNewText(); }
+  if(e.key === "Escape" && state.running) togglePause();
+});
+
+/* Custom text modal */
+document.getElementById("customCancel").addEventListener("click", ()=> els.customModal.classList.remove("show"));
+document.getElementById("customApply").addEventListener("click", ()=>{
+  const val = els.customTextArea.value.trim();
+  if(val){ state.customText = val; }
+  els.customModal.classList.remove("show");
+  resetToNewText();
+});
+
+/* Settings panel */
+document.getElementById("settingsToggle").addEventListener("click", ()=> els.settingsPanel.classList.toggle("show"));
+document.querySelectorAll(".swatch").forEach(sw=>{
+  sw.addEventListener("click", ()=>{
+    document.querySelectorAll(".swatch").forEach(s=>s.classList.remove("on"));
+    sw.classList.add("on");
+    document.body.setAttribute("data-accent", sw.dataset.accent);
+  });
+});
+els.fontSizeRange.addEventListener("input", ()=>{
+  document.documentElement.style.setProperty("--type-size", els.fontSizeRange.value+"px");
+});
+els.focusModeToggle.addEventListener("change", ()=>{
+  state.focusMode = els.focusModeToggle.checked;
+  applyFocusModeClass();
+});
+els.clearHistoryBtn.addEventListener("click", ()=>{
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(BEST_KEY);
+  updateSessionMeta();
+  renderHistoryTable([]);
+});
+
+document.getElementById("themeToggle").addEventListener("click", ()=>{
+  const cur = document.body.getAttribute("data-theme");
+  const next = cur === "dark" ? "light" : "dark";
+  document.body.setAttribute("data-theme", next);
+  document.getElementById("themeToggle").textContent = next==="dark" ? "☾" : "☀";
+});
+document.getElementById("soundToggle").addEventListener("click", (e)=>{
+  state.soundOn = !state.soundOn;
+  e.target.textContent = state.soundOn ? "🔊" : "🔇";
+  e.target.classList.toggle("active", state.soundOn);
+});
+
+/* Init */
+buildSubOptions();
+updateLetterhead();
+updateSessionMeta();
+resetToNewText();
+
+})();
+</script>
+</body>
+</html>
