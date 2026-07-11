@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Learning Studio — Kinetic Theory of Gases</title>
+<style>
+:root{
+  --bg:#0a0e14;
+  --bg-panel:#10161f;
+  --bg-card:#141b26;
+  --line:#232d3b;
+  --text:#e7edf5;
+  --text-dim:#8fa0b5;
+  --text-faint:#5b6b80;
+  --accent:#ff8a3d;
+  --accent-dim:#c96a2c;
+  --accent2:#3ddad7;
+  --accent2-dim:#279c99;
+  --good:#4ade80;
+  --bad:#f87171;
+  --warn:#fbbf24;
+  --radius:14px;
+  --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+  --mono:'SF Mono','Consolas','Monaco',monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.6;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;inset:0;
+  background-image:radial-gradient(circle at 20% 20%, rgba(255,138,61,0.05), transparent 40%),
+                    radial-gradient(circle at 80% 70%, rgba(61,218,215,0.05), transparent 40%);
+  pointer-events:none;z-index:0;
+}
+.wrap{max-width:920px;margin:0 auto;padding:0 24px;position:relative;z-index:1;}
+
+/* ===== Particle field header decoration ===== */
+.gas-field{
+  position:relative;height:140px;overflow:hidden;border-radius:var(--radius);
+  background:linear-gradient(180deg,#0d1420,#0a0e14);
+  border:1px solid var(--line);
+  margin-bottom:28px;
+}
+.particle{
+  position:absolute;border-radius:50%;
+  box-shadow:0 0 8px currentColor;
+}
+@keyframes drift{
+  0%{transform:translate(0,0);}
+  25%{transform:translate(40px,-18px);}
+  50%{transform:translate(10px,20px);}
+  75%{transform:translate(-30px,-8px);}
+  100%{transform:translate(0,0);}
+}
+@media (prefers-reduced-motion: reduce){
+  .particle{animation:none !important;}
+}
+
+/* ===== Top nav / progress ===== */
+header.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,14,20,0.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:14px 0;
+}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.brand{font-family:var(--serif);font-size:1.05rem;letter-spacing:0.02em;color:var(--text);}
+.brand em{color:var(--accent);font-style:normal;}
+.progress-track{
+  flex:1;max-width:340px;height:6px;background:var(--line);border-radius:99px;overflow:hidden;
+}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--accent-dim),var(--accent));
+  width:0%;transition:width .5s ease;border-radius:99px;
+}
+.reward-badge{
+  font-family:var(--mono);font-size:0.75rem;color:var(--accent);
+  border:1px solid var(--accent-dim);padding:5px 10px;border-radius:99px;
+  white-space:nowrap;
+}
+
+/* ===== Hero / intro ===== */
+.eyebrow{
+  font-family:var(--mono);font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--accent2);margin-bottom:10px;
+}
+h1.title{
+  font-family:var(--serif);font-size:2.6rem;font-weight:600;line-height:1.1;
+  margin-bottom:14px;color:var(--text);
+}
+h1.title em{font-style:italic;color:var(--accent);}
+.subtitle{color:var(--text-dim);font-size:1.05rem;max-width:640px;margin-bottom:28px;}
+
+.meta-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+  margin-bottom:24px;
+}
+.meta-cell{background:var(--bg-card);padding:16px 14px;}
+.meta-cell .label{font-family:var(--mono);font-size:0.68rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+.meta-cell .value{font-size:0.95rem;color:var(--text);font-weight:600;}
+@media(max-width:700px){.meta-grid{grid-template-columns:repeat(2,1fr);}}
+
+.card{
+  background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px 24px;margin-bottom:20px;
+}
+.card h3{font-family:var(--serif);font-size:1.2rem;margin-bottom:10px;color:var(--text);}
+.card ul{padding-left:20px;color:var(--text-dim);}
+.card li{margin-bottom:6px;}
+
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--accent);color:#1a0e05;font-weight:700;border:none;
+  padding:13px 26px;border-radius:99px;font-size:0.95rem;cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease;
+  font-family:var(--sans);
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,138,61,0.25);}
+.btn:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;}
+.btn.secondary{background:transparent;color:var(--text);border:1px solid var(--line);}
+.btn.secondary:hover{border-color:var(--accent2);box-shadow:none;}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* ===== Modules ===== */
+.module{
+  border:1px solid var(--line);border-radius:var(--radius);margin-bottom:24px;overflow:hidden;
+  background:var(--bg-panel);
+}
+.module-head{
+  padding:22px 26px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  cursor:pointer;user-select:none;
+}
+.module-head:hover{background:rgba(255,255,255,0.02);}
+.module-num{
+  font-family:var(--mono);font-size:0.75rem;color:var(--accent);letter-spacing:0.1em;
+}
+.module-title{font-family:var(--serif);font-size:1.5rem;color:var(--text);margin-top:4px;}
+.module-lock{
+  width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);color:var(--text-faint);flex-shrink:0;font-size:0.9rem;
+}
+.module.unlocked .module-lock{border-color:var(--good);color:var(--good);}
+.module.completed .module-lock{background:var(--good);color:#06210f;border-color:var(--good);}
+.module-body{
+  max-height:0;overflow:hidden;transition:max-height .4s ease;
+}
+.module.open .module-body{max-height:20000px;}
+.module-inner{padding:0 26px 30px;}
+.module.locked .module-head{cursor:not-allowed;opacity:0.5;}
+
+.chevron{transition:transform .3s ease;color:var(--text-faint);}
+.module.open .chevron{transform:rotate(180deg);}
+
+h4.section-h{
+  font-family:var(--serif);font-size:1.1rem;color:var(--accent2);margin:26px 0 12px;
+  display:flex;align-items:center;gap:8px;
+}
+h4.section-h::before{content:"";width:20px;height:1px;background:var(--accent2-dim);}
+p.body-text{color:var(--text-dim);margin-bottom:12px;}
+.example-box{
+  background:var(--bg-card);border-left:3px solid var(--accent);border-radius:8px;
+  padding:14px 18px;margin:14px 0;font-size:0.95rem;color:var(--text-dim);
+}
+.example-box strong{color:var(--text);}
+.analogy-box{
+  background:rgba(61,218,215,0.06);border-left:3px solid var(--accent2);border-radius:8px;
+  padding:14px 18px;margin:14px 0;font-size:0.95rem;color:var(--text-dim);
+}
+.misconception-box{
+  background:rgba(248,113,113,0.06);border-left:3px solid var(--bad);border-radius:8px;
+  padding:14px 18px;margin:14px 0;font-size:0.9rem;color:var(--text-dim);
+}
+.misconception-box strong{color:var(--bad);}
+
+.diagram-wrap{
+  background:var(--bg-card);border:1px solid var(--line);border-radius:12px;
+  padding:20px;margin:16px 0;display:flex;justify-content:center;
+}
+.diagram-caption{font-family:var(--mono);font-size:0.72rem;color:var(--text-faint);text-align:center;margin-top:8px;}
+
+table.compare{width:100%;border-collapse:collapse;margin:14px 0;font-size:0.9rem;}
+table.compare th,table.compare td{border:1px solid var(--line);padding:10px 12px;text-align:left;}
+table.compare th{background:var(--bg-card);color:var(--accent2);font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;}
+table.compare td{color:var(--text-dim);}
+
+.exercise-box{
+  background:var(--bg-card);border:1px dashed var(--accent-dim);border-radius:10px;
+  padding:18px 20px;margin:16px 0;
+}
+.exercise-box .ex-label{font-family:var(--mono);font-size:0.72rem;color:var(--accent);text-transform:uppercase;margin-bottom:8px;}
+.exercise-box input[type=number], .exercise-box input[type=text]{
+  background:var(--bg);border:1px solid var(--line);color:var(--text);
+  padding:8px 12px;border-radius:8px;font-family:var(--mono);width:140px;margin-right:10px;
+}
+.exercise-feedback{margin-top:10px;font-size:0.9rem;display:none;}
+.exercise-feedback.show{display:block;}
+.exercise-feedback.correct{color:var(--good);}
+.exercise-feedback.wrong{color:var(--bad);}
+
+.takeaway-box{
+  background:linear-gradient(135deg,rgba(255,138,61,0.08),rgba(61,218,215,0.05));
+  border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:16px 0;
+}
+.takeaway-box ul{padding-left:20px;color:var(--text);}
+.takeaway-box li{margin-bottom:6px;}
+
+/* Sliders / interactive elements */
+.sim-box{
+  background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:20px;margin:16px 0;
+}
+.sim-controls{display:flex;flex-wrap:wrap;gap:18px;margin-bottom:14px;}
+.sim-control{flex:1;min-width:160px;}
+.sim-control label{font-family:var(--mono);font-size:0.72rem;color:var(--text-faint);display:block;margin-bottom:6px;}
+.sim-control input[type=range]{width:100%;accent-color:var(--accent);}
+.sim-readout{font-family:var(--mono);color:var(--accent2);font-size:0.85rem;}
+
+/* Quiz */
+.quiz{
+  background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:24px;margin-top:28px;
+}
+.quiz h4{font-family:var(--serif);font-size:1.15rem;color:var(--text);margin-bottom:4px;}
+.quiz .quiz-sub{color:var(--text-faint);font-size:0.85rem;margin-bottom:18px;}
+.q-item{margin-bottom:22px;padding-bottom:20px;border-bottom:1px solid var(--line);}
+.q-item:last-of-type{border-bottom:none;}
+.q-text{font-weight:600;margin-bottom:10px;color:var(--text);}
+.q-options{display:flex;flex-direction:column;gap:8px;}
+.q-option{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--line);
+  border-radius:8px;cursor:pointer;transition:border-color .15s, background .15s;color:var(--text-dim);
+}
+.q-option:hover{border-color:var(--accent-dim);}
+.q-option.selected{border-color:var(--accent);background:rgba(255,138,61,0.06);}
+.q-option.correct{border-color:var(--good);background:rgba(74,222,128,0.08);color:var(--good);}
+.q-option.incorrect{border-color:var(--bad);background:rgba(248,113,113,0.08);color:var(--bad);}
+.q-explain{
+  margin-top:10px;font-size:0.85rem;color:var(--text-faint);padding:10px 12px;
+  background:var(--bg-panel);border-radius:8px;display:none;
+}
+.q-explain.show{display:block;}
+.quiz-result{
+  margin-top:16px;padding:18px;border-radius:10px;text-align:center;display:none;
+}
+.quiz-result.show{display:block;}
+.quiz-result .score{font-family:var(--serif);font-size:2rem;color:var(--accent);}
+
+/* Final section */
+.final-section{margin-top:40px;}
+.cheat-sheet{
+  background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;
+  font-family:var(--mono);font-size:0.85rem;color:var(--text-dim);
+}
+.cheat-sheet .eq{color:var(--accent2);}
+.resource-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:16px;}
+@media(max-width:700px){.resource-grid{grid-template-columns:1fr;}}
+.resource-card{background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
+.resource-card h5{font-family:var(--mono);font-size:0.72rem;color:var(--accent2);text-transform:uppercase;margin-bottom:10px;letter-spacing:0.06em;}
+.resource-card ul{padding-left:18px;color:var(--text-dim);font-size:0.9rem;}
+.resource-card li{margin-bottom:6px;}
+
+footer{text-align:center;padding:50px 0 30px;color:var(--text-faint);font-size:0.85rem;font-family:var(--mono);}
+
+.print-btn{position:fixed;bottom:24px;right:24px;z-index:40;}
+@media print{
+  header.topbar,.print-btn,.gas-field{display:none;}
+  body{background:#fff;color:#000;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">Interactive Learning <em>Studio</em></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="reward-badge" id="rewardBadge">⬡ 0 / 400 XP</div>
+  </div>
+</header>
+
+<div class="wrap" style="padding-top:32px;">
+
+  <div class="gas-field" id="gasField"></div>
+
+  <div class="eyebrow">Physics · Thermodynamics</div>
+  <h1 class="title">The <em>Kinetic Theory</em> of Gases</h1>
+  <p class="subtitle">Why does a gas push on the walls of its container? Why does heating it make that push stronger? This tutorial builds the answer from a single idea — tiny particles in ceaseless motion — up to the full ideal gas law and the statistics that govern molecular speed.</p>
+
+  <div class="meta-grid">
+    <div class="meta-cell"><div class="label">Est. Time</div><div class="value">55–70 min</div></div>
+    <div class="meta-cell"><div class="label">Modules</div><div class="value">4 + Challenge</div></div>
+    <div class="meta-cell"><div class="label">Prerequisites</div><div class="value">Basic algebra</div></div>
+    <div class="meta-cell"><div class="label">Reward</div><div class="value">400 XP total</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Learning Objectives</h3>
+    <ul>
+      <li>Explain gas pressure and temperature as consequences of particle motion, not separate mysterious properties</li>
+      <li>Derive the relationship between molecular speed, temperature, and pressure conceptually</li>
+      <li>Apply the ideal gas law (PV = nRT) and connect it to kinetic theory postulates</li>
+      <li>Interpret the Maxwell-Boltzmann speed distribution and explain what temperature really measures</li>
+      <li>Distinguish real gas behavior from the idealized model and know when the model breaks down</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Expected Outcomes</h3>
+    <p class="body-text" style="margin-bottom:0;">By the end, you'll be able to look at a sealed container of gas and predict, qualitatively and quantitatively, how it responds to heating, compression, or a change in the number of molecules inside it — and explain those predictions from first principles rather than by memorized formula.</p>
+  </div>
+
+  <div style="text-align:center;margin:36px 0;">
+    <button class="btn" onclick="scrollToModule(1)">Begin Module 1 →</button>
+  </div>
+
+  <!-- ================= MODULE 1 ================= -->
+  <div class="module unlocked" id="module-1" data-module="1">
+    <div class="module-head" onclick="toggleModule(1)">
+      <div>
+        <div class="module-num">MODULE 01 · FOUNDATIONS</div>
+        <div class="module-title">Particles in Motion</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="module-lock" id="lock-1">1</div>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="module-inner">
+
+        <p class="body-text">Kinetic theory starts from a bold simplification: a gas is not a substance with mysterious bulk properties — it is an enormous number of tiny, hard particles flying around in straight lines, colliding with each other and with the walls of their container. Everything we observe about gases — pressure, temperature, volume — emerges from this motion.</p>
+
+        <h4 class="section-h">The Core Postulates</h4>
+        <p class="body-text">The ideal gas model rests on five assumptions:</p>
+        <div class="example-box">
+          <strong>1.</strong> A gas consists of a huge number of identical molecules in constant, random motion.<br>
+          <strong>2.</strong> The molecules themselves take up negligible volume compared to the container.<br>
+          <strong>3.</strong> Collisions between molecules (and with the walls) are perfectly elastic — no kinetic energy is lost.<br>
+          <strong>4.</strong> There are no attractive or repulsive forces between molecules except during collisions.<br>
+          <strong>5.</strong> The average kinetic energy of the molecules is proportional to the absolute temperature.
+        </div>
+
+        <div class="analogy-box">
+          <strong>Analogy:</strong> Picture a room full of thousands of superballs bouncing off the walls and each other, never slowing down, never sticking together. Speed them up (heat the gas) and they hit the walls harder and more often. That relentless bombardment, averaged over billions of impacts per second, is what you feel as pressure.
+        </div>
+
+        <h4 class="section-h">Where Pressure Comes From</h4>
+        <p class="body-text">Pressure is not a property a single molecule "has." It's a statistical effect: force per unit area delivered by countless tiny impacts. Each collision with the wall transfers a tiny bit of momentum. Add up trillions of these transfers per second across the wall's area, and you get a steady, measurable push — the pressure gauge doesn't twitch with each collision because there are simply too many happening too fast to notice individually.</p>
+
+        <div class="diagram-wrap">
+          <svg width="480" height="220" viewBox="0 0 480 220">
+            <rect x="10" y="10" width="460" height="200" rx="8" fill="none" stroke="#232d3b" stroke-width="2"/>
+            <g id="staticParticles">
+              <circle cx="80" cy="60" r="6" fill="#ff8a3d"/>
+              <circle cx="180" cy="120" r="6" fill="#3ddad7"/>
+              <circle cx="320" cy="50" r="6" fill="#ff8a3d"/>
+              <circle cx="260" cy="160" r="6" fill="#3ddad7"/>
+              <circle cx="400" cy="90" r="6" fill="#ff8a3d"/>
+              <circle cx="120" cy="170" r="6" fill="#3ddad7"/>
+              <circle cx="380" cy="150" r="6" fill="#ff8a3d"/>
+            </g>
+            <line x1="440" y1="90" x2="470" y2="90" stroke="#f87171" stroke-width="2" marker-end="url(#arrow)"/>
+            <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#f87171"/></marker></defs>
+            <text x="240" y="205" text-anchor="middle" fill="#5b6b80" font-family="monospace" font-size="11">Each impact = tiny force → summed over billions/sec = pressure</text>
+          </svg>
+        </div>
+        <div class="diagram-caption">FIG 1.1 — Molecules colliding with a container wall, each transferring momentum</div>
+
+        <h4 class="section-h">What Temperature Actually Measures</h4>
+        <p class="body-text">Temperature is often taught as an abstract number on a thermometer, but kinetic theory gives it a concrete physical meaning: <strong style="color:var(--text)">temperature is a measure of the average kinetic energy of the molecules in a substance.</strong> Nothing more mystical than that. Hotter gas = faster-moving molecules, on average.</p>
+
+        <div class="example-box">
+          <strong>Example:</strong> Helium atoms in a balloon at room temperature (≈300 K) move at roughly 1,360 m/s on average — faster than a rifle bullet. Double the absolute temperature to 600 K, and the average speed increases by a factor of √2, not 2, because kinetic energy (which scales with T) depends on the <em>square</em> of speed.
+        </div>
+
+        <h4 class="section-h">Interactive: Heat the Box</h4>
+        <div class="sim-box">
+          <div class="sim-controls">
+            <div class="sim-control">
+              <label>Temperature</label>
+              <input type="range" id="tempSlider" min="50" max="500" value="300" oninput="updateSim()">
+              <div class="sim-readout" id="tempReadout">300 K</div>
+            </div>
+          </div>
+          <svg width="100%" height="180" viewBox="0 0 480 180" id="simSvg">
+            <rect x="4" y="4" width="472" height="172" rx="8" fill="#0a0e14" stroke="#232d3b" stroke-width="2"/>
+          </svg>
+          <p style="font-family:monospace;font-size:0.78rem;color:var(--text-faint);margin-top:8px;">Drag the slider — watch molecular speed (color/streak length) respond to temperature. Pressure readout below.</p>
+          <div class="sim-readout" id="pressureReadout" style="margin-top:8px;">Relative pressure: 1.00×</div>
+        </div>
+
+        <div class="misconception-box">
+          <strong>Common misconception:</strong> "Temperature measures heat energy stored in a gas." Not quite — temperature measures average kinetic energy per molecule. Total thermal energy (heat capacity) also depends on how many molecules you have and how they store energy (translation, rotation, vibration). A liter of gas and a swimming pool can be the same temperature while holding wildly different amounts of total energy.
+        </div>
+
+        <h4 class="section-h">Practice Exercise</h4>
+        <div class="exercise-box">
+          <div class="ex-label">Exercise 1.1</div>
+          <p class="body-text">If you double the absolute temperature of a fixed volume of gas, average molecular kinetic energy increases by what factor?</p>
+          <input type="number" id="ex1-input" step="0.1" placeholder="factor">
+          <button class="btn secondary" onclick="checkEx1()">Check</button>
+          <div class="exercise-feedback" id="ex1-feedback"></div>
+        </div>
+
+        <div class="takeaway-box">
+          <h4 class="section-h" style="margin-top:0;">Key Takeaways</h4>
+          <ul>
+            <li>Gases are modeled as vast numbers of particles in constant random motion with negligible volume and no intermolecular forces (ideal gas)</li>
+            <li>Pressure is the statistical result of countless molecular collisions with the container walls</li>
+            <li>Temperature is a direct measure of average molecular kinetic energy, not a separate abstract quantity</li>
+            <li>Kinetic energy scales with T, so speed scales with √T, not T directly</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- QUIZ 1 -->
+      <div class="quiz" id="quiz-1">
+        <h4>Module 1 Checkpoint</h4>
+        <div class="quiz-sub">Answer all 4 questions to unlock Module 2</div>
+        <div id="quiz1-items"></div>
+        <button class="btn" onclick="gradeQuiz(1)">Submit Answers</button>
+        <div class="quiz-result" id="quiz1-result"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MODULE 2 ================= -->
+  <div class="module locked" id="module-2" data-module="2">
+    <div class="module-head" onclick="toggleModule(2)">
+      <div>
+        <div class="module-num">MODULE 02 · THE GAS LAWS</div>
+        <div class="module-title">Pressure, Volume &amp; the Ideal Gas Law</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="module-lock" id="lock-2">🔒</div>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="module-inner">
+
+        <p class="body-text">Once you accept that pressure comes from molecular bombardment and temperature from molecular speed, the classical gas laws stop being memorized formulas and become predictable consequences.</p>
+
+        <h4 class="section-h">Boyle's Law: P ∝ 1/V</h4>
+        <p class="body-text">Squeeze a gas into a smaller volume at constant temperature, and the molecules — still moving at the same average speed — hit the (now closer) walls more frequently. More frequent impacts per second means more pressure.</p>
+
+        <div class="analogy-box">
+          <strong>Analogy:</strong> Imagine the superballs from Module 1 in a room that's shrinking. Same balls, same speed, but now they cross the room faster and slam into the (closer) walls more often. Pressure rises even though nothing about the balls themselves changed.
+        </div>
+
+        <h4 class="section-h">Charles's Law: V ∝ T (at constant P)</h4>
+        <p class="body-text">Heat a gas in a container with a movable piston, and molecules move faster, striking the piston harder and more often. To keep pressure constant, the volume must expand — spreading out the impacts so pressure per unit area stays the same.</p>
+
+        <h4 class="section-h">Gay-Lussac's Law: P ∝ T (at constant V)</h4>
+        <p class="body-text">Heat a sealed rigid container — volume can't change — so the extra molecular speed shows up entirely as increased pressure: harder, more frequent impacts on fixed walls.</p>
+
+        <div class="diagram-wrap">
+          <svg width="480" height="200" viewBox="0 0 480 200">
+            <text x="80" y="20" fill="#8fa0b5" font-family="monospace" font-size="11" text-anchor="middle">Boyle's (T const)</text>
+            <rect x="20" y="30" width="120" height="90" fill="none" stroke="#3ddad7" stroke-width="2"/>
+            <text x="80" y="135" fill="#5b6b80" font-family="monospace" font-size="10" text-anchor="middle">V↓ → P↑</text>
+
+            <text x="240" y="20" fill="#8fa0b5" font-family="monospace" font-size="11" text-anchor="middle">Charles's (P const)</text>
+            <rect x="180" y="60" width="120" height="60" fill="none" stroke="#ff8a3d" stroke-width="2"/>
+            <text x="240" y="135" fill="#5b6b80" font-family="monospace" font-size="10" text-anchor="middle">T↑ → V↑</text>
+
+            <text x="400" y="20" fill="#8fa0b5" font-family="monospace" font-size="11" text-anchor="middle">Gay-Lussac's (V const)</text>
+            <rect x="340" y="30" width="120" height="90" fill="none" stroke="#fbbf24" stroke-width="2"/>
+            <text x="400" y="135" fill="#5b6b80" font-family="monospace" font-size="10" text-anchor="middle">T↑ → P↑</text>
+          </svg>
+        </div>
+        <div class="diagram-caption">FIG 2.1 — Three gas laws as special cases of one underlying molecular behavior</div>
+
+        <h4 class="section-h">Unifying Them: The Ideal Gas Law</h4>
+        <p class="body-text">All three combine into a single equation:</p>
+        <div class="example-box" style="font-family:var(--mono);font-size:1.1rem;text-align:center;color:var(--accent2);">PV = nRT</div>
+        <p class="body-text">where P is pressure, V is volume, n is the number of moles of gas, R is the universal gas constant (8.314 J/(mol·K)), and T is absolute temperature in kelvin. Every one of Boyle's, Charles's, and Gay-Lussac's laws is this single equation with one variable held fixed.</p>
+
+        <table class="compare">
+          <tr><th>Law</th><th>Held Constant</th><th>Relationship</th></tr>
+          <tr><td>Boyle's Law</td><td>Temperature, n</td><td>P₁V₁ = P₂V₂</td></tr>
+          <tr><td>Charles's Law</td><td>Pressure, n</td><td>V₁/T₁ = V₂/T₂</td></tr>
+          <tr><td>Gay-Lussac's Law</td><td>Volume, n</td><td>P₁/T₁ = P₂/T₂</td></tr>
+          <tr><td>Ideal Gas Law</td><td>Nothing — general case</td><td>PV = nRT</td></tr>
+        </table>
+
+        <h4 class="section-h">Interactive: The PVT Relationship</h4>
+        <div class="sim-box">
+          <div class="sim-controls">
+            <div class="sim-control">
+              <label>Volume (L)</label>
+              <input type="range" id="volSlider" min="1" max="10" value="5" step="0.5" oninput="updateGasLaw()">
+              <div class="sim-readout" id="volReadout">5.0 L</div>
+            </div>
+            <div class="sim-control">
+              <label>Temperature (K)</label>
+              <input type="range" id="tSlider2" min="200" max="600" value="300" oninput="updateGasLaw()">
+              <div class="sim-readout" id="tReadout2">300 K</div>
+            </div>
+          </div>
+          <div class="sim-readout" id="gasLawResult" style="font-size:1.1rem;">Pressure (1 mol) ≈ 4.99 atm</div>
+        </div>
+
+        <h4 class="section-h">Practical Exercise</h4>
+        <div class="exercise-box">
+          <div class="ex-label">Exercise 2.1</div>
+          <p class="body-text">A sealed rigid container holds gas at 2 atm and 300 K. If you heat it to 450 K, what is the new pressure (in atm)?</p>
+          <input type="number" id="ex2-input" step="0.01" placeholder="atm">
+          <button class="btn secondary" onclick="checkEx2()">Check</button>
+          <div class="exercise-feedback" id="ex2-feedback"></div>
+        </div>
+
+        <div class="misconception-box">
+          <strong>Common misconception:</strong> "Pressure and volume are directly linked, always." They're only inversely linked when temperature is fixed. Change temperature too, and you must use the full PV = nRT relationship — treating any pair of gas law variables as universally coupled is a common source of exam errors.
+        </div>
+
+        <div class="takeaway-box">
+          <h4 class="section-h" style="margin-top:0;">Key Takeaways</h4>
+          <ul>
+            <li>Boyle's, Charles's, and Gay-Lussac's laws are all special cases of PV = nRT</li>
+            <li>Each law's behavior is explainable directly from molecular collision frequency and force</li>
+            <li>R is a proportionality constant that makes the units work out (8.314 J/(mol·K))</li>
+            <li>Always check which variable is held constant before applying a "simplified" law</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="quiz" id="quiz-2">
+        <h4>Module 2 Checkpoint</h4>
+        <div class="quiz-sub">Answer all 4 questions to unlock Module 3</div>
+        <div id="quiz2-items"></div>
+        <button class="btn" onclick="gradeQuiz(2)">Submit Answers</button>
+        <div class="quiz-result" id="quiz2-result"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MODULE 3 ================= -->
+  <div class="module locked" id="module-3" data-module="3">
+    <div class="module-head" onclick="toggleModule(3)">
+      <div>
+        <div class="module-num">MODULE 03 · APPLICATION</div>
+        <div class="module-title">Molecular Speed &amp; the Maxwell-Boltzmann Distribution</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="module-lock" id="lock-3">🔒</div>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="module-inner">
+
+        <p class="body-text">Not every molecule in a gas moves at the same speed — temperature describes the average, but individual molecules range from nearly stationary to extremely fast, constantly redistributed by collisions. This spread is captured by the Maxwell-Boltzmann distribution.</p>
+
+        <h4 class="section-h">Why a Distribution, Not a Single Speed?</h4>
+        <p class="body-text">Every collision between two molecules can speed one up and slow the other down, like billiard balls exchanging momentum. With trillions of collisions per second, molecular speeds settle into a statistical distribution rather than a single fixed value — some molecules are briefly almost at rest, a few are moving exceptionally fast, and most cluster around a typical value.</p>
+
+        <div class="diagram-wrap">
+          <svg width="480" height="220" viewBox="0 0 480 220">
+            <line x1="30" y1="190" x2="460" y2="190" stroke="#232d3b" stroke-width="2"/>
+            <line x1="30" y1="190" x2="30" y2="20" stroke="#232d3b" stroke-width="2"/>
+            <path d="M30,185 C 80,180 110,40 170,40 C 230,40 260,150 340,175 C 390,185 420,189 460,190" fill="none" stroke="#ff8a3d" stroke-width="2.5"/>
+            <path d="M30,188 C 60,186 90,120 130,80 C 170,45 220,60 280,110 C 330,150 400,185 460,190" fill="none" stroke="#3ddad7" stroke-width="2.5" stroke-dasharray="5,4"/>
+            <text x="170" y="35" fill="#ff8a3d" font-family="monospace" font-size="10">low T</text>
+            <text x="220" y="55" fill="#3ddad7" font-family="monospace" font-size="10">high T</text>
+            <text x="245" y="208" fill="#5b6b80" font-family="monospace" font-size="11" text-anchor="middle">Molecular Speed →</text>
+            <text x="20" y="105" fill="#5b6b80" font-family="monospace" font-size="11" transform="rotate(-90 20 105)" text-anchor="middle">Fraction of molecules</text>
+          </svg>
+        </div>
+        <div class="diagram-caption">FIG 3.1 — Maxwell-Boltzmann speed distribution at two temperatures. Higher T: curve shifts right and flattens.</div>
+
+        <p class="body-text">Notice: raising temperature doesn't just shift the peak right (higher typical speed) — it also flattens and widens the curve. There's a wider spread of speeds, including a longer "tail" of unusually fast molecules. That tail matters enormously in chemistry — it's often the fast-tail molecules that have enough energy to react or escape (evaporate).</p>
+
+        <div class="analogy-box">
+          <strong>Analogy:</strong> Think of a stadium crowd's walking speeds leaving after a game. Most people walk at a similar, moderate pace, some dawdle, a few sprint for the exit. "Average walking speed" describes the crowd, but doesn't mean everyone moves identically. Heat the gas, and it's as if the crowd got more excited — the average pace rises and the range of paces widens.
+        </div>
+
+        <h4 class="section-h">Three Characteristic Speeds</h4>
+        <table class="compare">
+          <tr><th>Speed</th><th>Symbol</th><th>What it represents</th></tr>
+          <tr><td>Most probable speed</td><td>v_p</td><td>Peak of the distribution curve — the single most common speed</td></tr>
+          <tr><td>Average speed</td><td>v_avg</td><td>Mean of all molecular speeds</td></tr>
+          <tr><td>Root-mean-square speed</td><td>v_rms</td><td>√(mean of squared speeds) — directly tied to kinetic energy and used in PV = nRT derivations</td></tr>
+        </table>
+        <div class="example-box">
+          <strong>Formula:</strong> v_rms = √(3RT/M), where M is molar mass (kg/mol). Lighter molecules move faster at the same temperature — this is why helium leaks out of balloons faster than the nitrogen and oxygen already in the room air.
+        </div>
+
+        <h4 class="section-h">Interactive: Compare Two Gases</h4>
+        <div class="sim-box">
+          <div class="sim-controls">
+            <div class="sim-control">
+              <label>Molar Mass Gas A (g/mol)</label>
+              <input type="range" id="massA" min="2" max="100" value="4" oninput="updateSpeeds()">
+              <div class="sim-readout" id="massAReadout">4 g/mol (Helium-like)</div>
+            </div>
+            <div class="sim-control">
+              <label>Molar Mass Gas B (g/mol)</label>
+              <input type="range" id="massB" min="2" max="100" value="44" oninput="updateSpeeds()">
+              <div class="sim-readout" id="massBReadout">44 g/mol (CO₂-like)</div>
+            </div>
+          </div>
+          <div class="sim-readout" id="speedResult" style="font-size:1rem;">v_rms(A) ≈ 1362 m/s · v_rms(B) ≈ 411 m/s at 300 K</div>
+        </div>
+
+        <h4 class="section-h">Practical Exercise</h4>
+        <div class="exercise-box">
+          <div class="ex-label">Exercise 3.1</div>
+          <p class="body-text">Two gas samples are at the same temperature. Gas X has a lower molar mass than Gas Y. Which has the higher v_rms?</p>
+          <div class="q-options" style="max-width:320px;">
+            <div class="q-option" onclick="checkEx3(this,false)">Gas Y (heavier)</div>
+            <div class="q-option" onclick="checkEx3(this,true)">Gas X (lighter)</div>
+            <div class="q-option" onclick="checkEx3(this,false)">Both equal — mass doesn't matter</div>
+          </div>
+          <div class="exercise-feedback" id="ex3-feedback"></div>
+        </div>
+
+        <div class="misconception-box">
+          <strong>Common misconception:</strong> "All molecules in a gas at a given temperature move at the same speed." Temperature relates to <em>average</em> kinetic energy across the population, not a uniform speed for every molecule — the Maxwell-Boltzmann distribution shows real spread around that average.
+        </div>
+
+        <div class="takeaway-box">
+          <h4 class="section-h" style="margin-top:0;">Key Takeaways</h4>
+          <ul>
+            <li>Molecular speeds follow a statistical distribution (Maxwell-Boltzmann), not a single fixed value</li>
+            <li>Higher temperature shifts the distribution right and widens its spread, including the fast-molecule tail</li>
+            <li>v_rms = √(3RT/M) — lighter molecules move faster at a given temperature</li>
+            <li>The fast tail of the distribution matters disproportionately for reactions and evaporation</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="quiz" id="quiz-3">
+        <h4>Module 3 Checkpoint</h4>
+        <div class="quiz-sub">Answer all 4 questions to unlock Module 4</div>
+        <div id="quiz3-items"></div>
+        <button class="btn" onclick="gradeQuiz(3)">Submit Answers</button>
+        <div class="quiz-result" id="quiz3-result"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MODULE 4 ================= -->
+  <div class="module locked" id="module-4" data-module="4">
+    <div class="module-head" onclick="toggleModule(4)">
+      <div>
+        <div class="module-num">MODULE 04 · MASTERY</div>
+        <div class="module-title">Real Gases &amp; the Limits of the Model</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="module-lock" id="lock-4">🔒</div>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="module-inner">
+
+        <p class="body-text">The ideal gas model is remarkably accurate for many everyday conditions — but it's still a model, built on postulates that real molecules violate to varying degrees. Understanding where and why it breaks down is the mark of real mastery.</p>
+
+        <h4 class="section-h">Where the Ideal Assumptions Fail</h4>
+        <table class="compare">
+          <tr><th>Ideal Assumption</th><th>Reality</th><th>When it matters most</th></tr>
+          <tr><td>Molecules have negligible volume</td><td>Real molecules occupy real space</td><td>High pressure (molecules packed close)</td></tr>
+          <tr><td>No intermolecular forces</td><td>Van der Waals attractions exist</td><td>Low temperature (molecules move slow enough for attraction to matter)</td></tr>
+          <tr><td>Perfectly elastic collisions</td><td>Approximately true, minor energy transfer to rotation/vibration</td><td>Polyatomic gases, very precise measurements</td></tr>
+        </table>
+
+        <h4 class="section-h">The Van der Waals Correction</h4>
+        <p class="body-text">Johannes van der Waals modified the ideal gas law to account for molecular volume and attraction:</p>
+        <div class="example-box" style="font-family:var(--mono);text-align:center;color:var(--accent2);">
+          (P + a·n²/V²)(V − nb) = nRT
+        </div>
+        <p class="body-text">The <span style="font-family:var(--mono);color:var(--accent2);">b</span> term corrects for the volume molecules actually occupy (available volume is less than container volume). The <span style="font-family:var(--mono);color:var(--accent2);">a</span> term corrects pressure upward to account for attractive forces slightly reducing the force of wall impacts.</p>
+
+        <div class="analogy-box">
+          <strong>Analogy:</strong> Ideal gas molecules are like ghosts — no size, no attraction, pure momentum transfer. Real molecules are more like people in a crowded room: they take up actual space (van der Waals' b) and, at close range, some are drawn toward friends rather than bouncing away cleanly (van der Waals' a).
+        </div>
+
+        <div class="diagram-wrap">
+          <svg width="480" height="200" viewBox="0 0 480 200">
+            <line x1="30" y1="170" x2="460" y2="170" stroke="#232d3b" stroke-width="2"/>
+            <line x1="30" y1="170" x2="30" y2="20" stroke="#232d3b" stroke-width="2"/>
+            <line x1="30" y1="90" x2="460" y2="90" stroke="#8fa0b5" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <path d="M30,170 C 120,130 250,60 460,50" fill="none" stroke="#ff8a3d" stroke-width="2.5"/>
+            <text x="440" y="45" fill="#ff8a3d" font-family="monospace" font-size="10">real gas (high P)</text>
+            <text x="380" y="85" fill="#8fa0b5" font-family="monospace" font-size="10">ideal gas prediction</text>
+            <text x="245" y="190" fill="#5b6b80" font-family="monospace" font-size="11" text-anchor="middle">Pressure →</text>
+          </svg>
+        </div>
+        <div class="diagram-caption">FIG 4.1 — Real gas compressibility deviates from ideal prediction at high pressure</div>
+
+        <h4 class="section-h">Interactive: Ideal vs. Real Behavior</h4>
+        <div class="sim-box">
+          <div class="sim-controls">
+            <div class="sim-control">
+              <label>Pressure regime</label>
+              <input type="range" id="pressureRegime" min="1" max="10" value="1" oninput="updateReal()">
+              <div class="sim-readout" id="pressureRegimeReadout">Low pressure</div>
+            </div>
+          </div>
+          <div class="sim-readout" id="realGasResult" style="font-size:0.95rem;">Ideal gas law is accurate to within ~1% here.</div>
+        </div>
+
+        <h4 class="section-h">Practical Exercise</h4>
+        <div class="exercise-box">
+          <div class="ex-label">Exercise 4.1</div>
+          <p class="body-text">Under which condition would a real gas deviate MOST from ideal behavior?</p>
+          <div class="q-options" style="max-width:420px;">
+            <div class="q-option" onclick="checkEx4(this,false)">Low pressure, high temperature</div>
+            <div class="q-option" onclick="checkEx4(this,true)">High pressure, low temperature</div>
+            <div class="q-option" onclick="checkEx4(this,false)">Standard temperature and pressure</div>
+          </div>
+          <div class="exercise-feedback" id="ex4-feedback"></div>
+        </div>
+
+        <div class="misconception-box">
+          <strong>Common misconception:</strong> "The ideal gas law is 'wrong' and shouldn't be used." It's an excellent approximation across a huge range of practical conditions — most everyday chemistry and engineering calculations use it confidently. It only meaningfully breaks down under extreme pressure or near a gas's condensation point.
+        </div>
+
+        <div class="takeaway-box">
+          <h4 class="section-h" style="margin-top:0;">Key Takeaways</h4>
+          <ul>
+            <li>Real gases deviate from ideal behavior mainly at high pressure and low temperature</li>
+            <li>The Van der Waals equation corrects for molecular volume (b) and intermolecular attraction (a)</li>
+            <li>Every gas has conditions under which it behaves nearly ideally, and conditions under which it doesn't</li>
+            <li>Kinetic theory's postulates are simplifications, not literal claims about every molecule</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="quiz" id="quiz-4">
+        <h4>Module 4 Checkpoint</h4>
+        <div class="quiz-sub">Answer all 4 questions to unlock the Final Challenge</div>
+        <div id="quiz4-items"></div>
+        <button class="btn" onclick="gradeQuiz(4)">Submit Answers</button>
+        <div class="quiz-result" id="quiz4-result"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= FINAL CHALLENGE ================= -->
+  <div class="final-section" id="final-section" style="display:none;">
+    <div class="card">
+      <h3>🏆 Final Practical Challenge</h3>
+      <p class="body-text">A rigid 10 L steel tank contains 2 mol of an ideal gas at 27°C (300 K). Engineers plan to heat the tank to 127°C (400 K) for a process step.</p>
+      <div class="exercise-box">
+        <div class="ex-label">Challenge</div>
+        <p class="body-text">Calculate the pressure inside the tank <strong>before</strong> heating (at 300 K), in atm. Use R = 0.0821 L·atm/(mol·K).</p>
+        <input type="number" id="challenge-input" step="0.01" placeholder="atm">
+        <button class="btn secondary" onclick="checkChallenge()">Submit Answer</button>
+        <div class="exercise-feedback" id="challenge-feedback"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📋 Cheat Sheet</h3>
+      <div class="cheat-sheet">
+        Ideal Gas Law: <span class="eq">PV = nRT</span><br>
+        Boyle's Law (T const): <span class="eq">P₁V₁ = P₂V₂</span><br>
+        Charles's Law (P const): <span class="eq">V₁/T₁ = V₂/T₂</span><br>
+        Gay-Lussac's Law (V const): <span class="eq">P₁/T₁ = P₂/T₂</span><br>
+        RMS Speed: <span class="eq">v_rms = √(3RT/M)</span><br>
+        Avg. KE per molecule: <span class="eq">KE = (3/2)k_BT</span><br>
+        Van der Waals: <span class="eq">(P + an²/V²)(V − nb) = nRT</span><br>
+        R = 8.314 J/(mol·K) = 0.0821 L·atm/(mol·K)
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📝 Summary Notes</h3>
+      <p class="body-text" style="margin-bottom:0;">Kinetic theory reduces gas behavior to particles in motion: pressure comes from collision frequency and force, temperature measures average kinetic energy, and the ideal gas law unifies Boyle's, Charles's, and Gay-Lussac's laws into PV = nRT. Real molecular speeds follow the Maxwell-Boltzmann distribution rather than a single value, with lighter molecules moving faster at a given temperature (v_rms = √(3RT/M)). Real gases deviate from this idealized picture at high pressure and low temperature, where molecular volume and intermolecular attraction (captured by the Van der Waals equation) become significant.</p>
+    </div>
+
+    <div class="card">
+      <h3>Continue Learning</h3>
+      <div class="resource-grid">
+        <div class="resource-card">
+          <h5>Books</h5>
+          <ul>
+            <li>"Thermal Physics" — Charles Kittel &amp; Herbert Kroemer</li>
+            <li>"An Introduction to Thermal Physics" — Daniel Schroeder</li>
+            <li>"Physical Chemistry" — Peter Atkins</li>
+          </ul>
+        </div>
+        <div class="resource-card">
+          <h5>Documentation &amp; References</h5>
+          <ul>
+            <li>NIST Chemistry WebBook (thermophysical data)</li>
+            <li>HyperPhysics — Kinetic Theory section</li>
+            <li>MIT OpenCourseWare — 8.044 Statistical Physics</li>
+          </ul>
+        </div>
+        <div class="resource-card">
+          <h5>Research Papers</h5>
+          <ul>
+            <li>Maxwell, J.C. (1860) — "Illustrations of the Dynamical Theory of Gases"</li>
+            <li>Van der Waals, J.D. (1873) — doctoral thesis on the continuity of gas and liquid states</li>
+          </ul>
+        </div>
+        <div class="resource-card">
+          <h5>Communities</h5>
+          <ul>
+            <li>r/AskPhysics, r/chemistry (Reddit)</li>
+            <li>Physics Stack Exchange</li>
+            <li>PhysicsForums.com — Classical Physics section</li>
+          </ul>
+        </div>
+        <div class="resource-card">
+          <h5>Practice Platforms</h5>
+          <ul>
+            <li>PhET Interactive Simulations (Gas Properties sim)</li>
+            <li>Khan Academy — Gases and Kinetic Molecular Theory</li>
+            <li>LibreTexts Chemistry — practice problem sets</li>
+          </ul>
+        </div>
+        <div class="resource-card">
+          <h5>Search Keywords</h5>
+          <ul>
+            <li>"kinetic molecular theory postulates"</li>
+            <li>"Maxwell-Boltzmann distribution derivation"</li>
+            <li>"Van der Waals equation real gases"</li>
+          </ul>
+        </div>
+      </div>
+      <div class="resource-card" style="margin-top:16px;">
+        <h5>AI Prompts for Further Learning</h5>
+        <ul>
+          <li>"Derive the ideal gas law from kinetic theory first principles, step by step."</li>
+          <li>"Explain why the Maxwell-Boltzmann distribution has a longer tail at higher temperatures."</li>
+          <li>"Walk me through calculating effusion rates using Graham's Law and kinetic theory."</li>
+          <li>"Compare kinetic theory predictions to real gas behavior for CO₂ near its critical point."</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin:36px 0;">
+      <button class="btn secondary" onclick="window.print()">🖨 Print / Save Notes</button>
+    </div>
+  </div>
+
+</div>
+
+<footer>KINETIC THEORY OF GASES · INTERACTIVE LEARNING STUDIO · #60DaysABTalksChallenge</footer>
+
+<script>
+/* ============ Particle field background ============ */
+(function(){
+  const field = document.getElementById('gasField');
+  const colors = ['#ff8a3d','#3ddad7'];
+  for(let i=0;i<24;i++){
+    const p = document.createElement('div');
+    const size = 3+Math.random()*5;
+    const color = colors[i%2];
+    p.className='particle';
+    p.style.width=size+'px';
+    p.style.height=size+'px';
+    p.style.background=color;
+    p.style.color=color;
+    p.style.left=(Math.random()*95)+'%';
+    p.style.top=(Math.random()*85)+'%';
+    const dur = 6+Math.random()*8;
+    p.style.animation=`drift ${dur}s ease-in-out infinite`;
+    p.style.animationDelay=(Math.random()*-10)+'s';
+    field.appendChild(p);
+  }
+})();
+
+/* ============ State ============ */
+let xp = 0;
+const maxXp = 400;
+let completedModules = new Set();
+
+function updateProgress(){
+  document.getElementById('progressFill').style.width = (xp/maxXp*100)+'%';
+  document.getElementById('rewardBadge').textContent = `⬡ ${xp} / ${maxXp} XP`;
+  if(completedModules.size===4){
+    document.getElementById('final-section').style.display='block';
+  }
+}
+
+function scrollToModule(n){
+  document.getElementById('module-'+n).scrollIntoView({behavior:'smooth'});
+  const m = document.getElementById('module-'+n);
+  if(!m.classList.contains('open')) toggleModule(n);
+}
+
+function toggleModule(n){
+  const m = document.getElementById('module-'+n);
+  if(m.classList.contains('locked')) return;
+  m.classList.toggle('open');
+}
+
+function unlockModule(n){
+  const m = document.getElementById('module-'+n);
+  if(!m) return;
+  m.classList.remove('locked');
+  m.classList.add('unlocked');
+  document.getElementById('lock-'+n).textContent = n;
+}
+
+function completeModule(n){
+  const m = document.getElementById('module-'+n);
+  m.classList.add('completed');
+  document.getElementById('lock-'+n).innerHTML='✓';
+  completedModules.add(n);
+  unlockModule(n+1);
+  updateProgress();
+}
+
+/* ============ Exercise checks ============ */
+function checkEx1(){
+  const v = parseFloat(document.getElementById('ex1-input').value);
+  const fb = document.getElementById('ex1-feedback');
+  fb.classList.add('show');
+  if(Math.abs(v-2)<0.05){
+    fb.className='exercise-feedback show correct';
+    fb.textContent='✓ Correct — kinetic energy scales directly with T, so doubling T doubles average KE (speed increases by √2).';
+    xp = Math.min(maxXp, xp+10); updateProgress();
+  } else {
+    fb.className='exercise-feedback show wrong';
+    fb.textContent='✗ Not quite. KE ∝ T directly, so doubling T doubles KE exactly (factor of 2) — even though speed only rises by √2.';
+  }
+}
+function checkEx2(){
+  const v = parseFloat(document.getElementById('ex2-input').value);
+  const fb = document.getElementById('ex2-feedback');
+  fb.classList.add('show');
+  const answer = 2*(450/300);
+  if(Math.abs(v-answer)<0.05){
+    fb.className='exercise-feedback show correct';
+    fb.textContent='✓ Correct — 3 atm. Using P₁/T₁ = P₂/T₂: 2/300 = P₂/450 → P₂ = 3 atm.';
+    xp = Math.min(maxXp, xp+10); updateProgress();
+  } else {
+    fb.className='exercise-feedback show wrong';
+    fb.textContent='✗ Try Gay-Lussac\'s Law: P₁/T₁ = P₂/T₂ → P₂ = 2 × (450/300) = 3 atm.';
+  }
+}
+function checkEx3(el,correct){
+  const opts = el.parentElement.querySelectorAll('.q-option');
+  opts.forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  const fb = document.getElementById('ex3-feedback');
+  fb.classList.add('show');
+  if(correct){
+    fb.className='exercise-feedback show correct';
+    fb.textContent='✓ Correct — v_rms = √(3RT/M): at equal T, lower molar mass M means higher v_rms.';
+    xp = Math.min(maxXp, xp+10); updateProgress();
+  } else {
+    fb.className='exercise-feedback show wrong';
+    fb.textContent='✗ Recall v_rms = √(3RT/M) — M is in the denominator, so lighter (lower M) gas moves faster.';
+  }
+}
+function checkEx4(el,correct){
+  const opts = el.parentElement.querySelectorAll('.q-option');
+  opts.forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  const fb = document.getElementById('ex4-feedback');
+  fb.classList.add('show');
+  if(correct){
+    fb.className='exercise-feedback show correct';
+    fb.textContent='✓ Correct — high pressure packs molecules close (volume matters) and low temperature slows them enough for attractive forces to matter.';
+    xp = Math.min(maxXp, xp+10); updateProgress();
+  } else {
+    fb.className='exercise-feedback show wrong';
+    fb.textContent='✗ Deviation is largest at high pressure + low temperature, where molecular volume and attraction both become significant.';
+  }
+}
+function checkChallenge(){
+  const v = parseFloat(document.getElementById('challenge-input').value);
+  const fb = document.getElementById('challenge-feedback');
+  fb.classList.add('show');
+  const answer = (2*0.0821*300)/10; // ~4.926
+  if(Math.abs(v-answer)<0.1){
+    fb.className='exercise-feedback show correct';
+    fb.textContent=`✓ Correct — P = nRT/V = (2 × 0.0821 × 300) / 10 ≈ ${answer.toFixed(2)} atm.`;
+    xp = maxXp; updateProgress();
+  } else {
+    fb.className='exercise-feedback show wrong';
+    fb.textContent=`✗ Use P = nRT/V = (2 × 0.0821 × 300) / 10 ≈ ${answer.toFixed(2)} atm.`;
+  }
+}
+
+/* ============ Simulations ============ */
+function updateSim(){
+  const t = parseInt(document.getElementById('tempSlider').value);
+  document.getElementById('tempReadout').textContent = t+' K';
+  const svg = document.getElementById('simSvg');
+  // clear old particles
+  svg.querySelectorAll('.sim-particle').forEach(p=>p.remove());
+  const n = 14;
+  const speedFactor = Math.sqrt(t/300);
+  for(let i=0;i<n;i++){
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    const cx = 20+Math.random()*440, cy=20+Math.random()*140;
+    c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',5);
+    c.setAttribute('fill', i%2===0?'#ff8a3d':'#3ddad7');
+    c.setAttribute('class','sim-particle');
+    const dur = Math.max(0.4, 2.2/speedFactor);
+    const dx = (Math.random()*60-30)*speedFactor, dy=(Math.random()*40-20)*speedFactor;
+    const anim = document.createElementNS('http://www.w3.org/2000/svg','animateTransform');
+    anim.setAttribute('attributeName','transform');
+    anim.setAttribute('type','translate');
+    anim.setAttribute('values',`0,0; ${dx},${dy}; 0,0`);
+    anim.setAttribute('dur',dur+'s');
+    anim.setAttribute('repeatCount','indefinite');
+    c.appendChild(anim);
+    svg.appendChild(c);
+  }
+  const pressure = (t/300).toFixed(2);
+  document.getElementById('pressureReadout').textContent = `Relative pressure: ${pressure}×`;
+}
+updateSim();
+
+function updateGasLaw(){
+  const v = parseFloat(document.getElementById('volSlider').value);
+  const t = parseFloat(document.getElementById('tSlider2').value);
+  document.getElementById('volReadout').textContent = v.toFixed(1)+' L';
+  document.getElementById('tReadout2').textContent = t+' K';
+  const R = 0.0821, n=1;
+  const p = (n*R*t)/v;
+  document.getElementById('gasLawResult').textContent = `Pressure (1 mol) ≈ ${p.toFixed(2)} atm`;
+}
+updateGasLaw();
+
+function updateSpeeds(){
+  const mA = parseFloat(document.getElementById('massA').value);
+  const mB = parseFloat(document.getElementById('massB').value);
+  document.getElementById('massAReadout').textContent = mA+' g/mol';
+  document.getElementById('massBReadout').textContent = mB+' g/mol';
+  const R=8.314, T=300;
+  const vA = Math.sqrt(3*R*T/(mA/1000));
+  const vB = Math.sqrt(3*R*T/(mB/1000));
+  document.getElementById('speedResult').textContent = `v_rms(A) ≈ ${vA.toFixed(0)} m/s · v_rms(B) ≈ ${vB.toFixed(0)} m/s at 300 K`;
+}
+updateSpeeds();
+
+function updateReal(){
+  const r = parseInt(document.getElementById('pressureRegime').value);
+  const labels = ['Low pressure','Low-moderate','Moderate','Moderate-high','High','Very high','Extreme','Near-critical','Very near-critical','Extreme high'];
+  document.getElementById('pressureRegimeReadout').textContent = labels[r-1];
+  const dev = (r*0.9).toFixed(1);
+  document.getElementById('realGasResult').textContent = r<4
+    ? `Ideal gas law is accurate to within ~${dev}% here.`
+    : `Deviation from ideal behavior grows to ~${dev}% — Van der Waals corrections become important.`;
+}
+updateReal();
+
+/* ============ Quiz data ============ */
+const quizData = {
+  1:[
+    {q:"What causes gas pressure, according to kinetic theory?",opts:["A property inherent to each individual molecule","The statistical result of countless molecular collisions with container walls","The weight of the gas pressing down","Chemical bonds between molecules"],correct:1,explain:"Pressure emerges from the sum of countless momentum transfers as molecules collide with the walls — it's not a property any single molecule 'has.'"},
+    {q:"Temperature, in kinetic theory terms, is best described as:",opts:["A measure of total heat energy stored","A measure of average molecular kinetic energy","A measure of gas density","An arbitrary scale with no physical meaning"],correct:1,explain:"Temperature directly reflects the average kinetic energy of the molecules — hotter means faster average motion."},
+    {q:"If temperature doubles, average molecular speed increases by roughly what factor?",opts:["2×","4×","√2×","No change"],correct:2,explain:"Since kinetic energy (∝T) depends on speed squared, speed scales with √T, so doubling T increases speed by √2, not 2."},
+    {q:"Which of these is NOT one of the ideal gas postulates?",opts:["Molecules undergo perfectly elastic collisions","Molecules have negligible volume","Molecules strongly attract one another","Molecules move in constant random motion"],correct:2,explain:"The ideal gas model assumes NO significant intermolecular forces — real molecules do attract slightly, but the ideal model ignores this."}
+  ],
+  2:[
+    {q:"Boyle's Law describes the relationship between pressure and volume when:",opts:["Temperature is constant","Moles of gas change","Volume is constant","Pressure is constant"],correct:0,explain:"Boyle's Law (P₁V₁ = P₂V₂) applies specifically at constant temperature and constant amount of gas."},
+    {q:"Why does compressing a gas (smaller volume, same T) increase pressure?",opts:["Molecules become heavier","Molecules collide with walls more frequently","Molecules slow down","Molecules stop moving randomly"],correct:1,explain:"Same speed, smaller space means molecules reach the walls more often, increasing impact frequency and thus pressure."},
+    {q:"In the ideal gas law PV = nRT, what does 'n' represent?",opts:["Number of collisions per second","Newton's constant","Number of moles of gas","Normal pressure"],correct:2,explain:"'n' is the number of moles of gas present — more moles means more molecules contributing to pressure."},
+    {q:"A rigid sealed container is heated. What happens to pressure?",opts:["Pressure decreases","Pressure stays the same","Pressure increases","Volume increases instead"],correct:2,explain:"With volume fixed, heating increases molecular speed, so impacts on the walls are harder and more frequent — pressure rises (Gay-Lussac's Law)."}
+  ],
+  3:[
+    {q:"Why do gas molecules have a range of speeds rather than one uniform speed?",opts:["Different molecules have different masses only","Constant collisions continuously redistribute kinetic energy among molecules","Only some molecules are 'real'","Temperature varies within the container"],correct:1,explain:"Trillions of collisions per second constantly exchange energy between molecules, producing a statistical spread of speeds — the Maxwell-Boltzmann distribution."},
+    {q:"As temperature increases, the Maxwell-Boltzmann distribution:",opts:["Shifts left and narrows","Shifts right and widens","Stays exactly the same shape","Becomes a single vertical line"],correct:1,explain:"Higher temperature shifts the typical speed higher (right) and widens the spread, creating a longer fast-molecule tail."},
+    {q:"Which gas has a higher v_rms at the same temperature: one with lower or higher molar mass?",opts:["Lower molar mass","Higher molar mass","They're always equal","Depends only on pressure"],correct:0,explain:"v_rms = √(3RT/M) — since M is in the denominator, lighter (lower molar mass) gases move faster at the same T."},
+    {q:"Why does the 'fast tail' of the speed distribution matter in chemistry?",opts:["It doesn't matter at all","Fast molecules are more likely to have enough energy to react or evaporate","It only affects color of the gas","It determines the gas's smell"],correct:1,explain:"Reactions and evaporation often depend on a minimum energy threshold — the fast tail supplies the molecules that clear that threshold even when the average doesn't."}
+  ],
+  4:[
+    {q:"Real gases deviate most from ideal behavior under which conditions?",opts:["Low pressure, high temperature","High pressure, low temperature","Standard temperature and pressure","Vacuum conditions"],correct:1,explain:"High pressure packs molecules close (their volume matters) and low temperature slows them enough for intermolecular attraction to matter — both push behavior away from ideal."},
+    {q:"In the Van der Waals equation, the 'b' constant corrects for:",opts:["Intermolecular attraction","The volume actually occupied by molecules","Temperature scale errors","The number of moles"],correct:1,explain:"'b' accounts for the fact that real molecules take up physical space, reducing the volume actually available for movement."},
+    {q:"In the Van der Waals equation, the 'a' constant corrects for:",opts:["Molecular volume","Intermolecular attractive forces","Container shape","Elastic collision losses"],correct:1,explain:"'a' adjusts pressure upward to account for attractive forces between molecules slightly softening their impact on the walls."},
+    {q:"Is the ideal gas law still useful despite these limitations?",opts:["No, it should never be used","Yes, it's a good approximation under many everyday conditions","Only for solids","Only at absolute zero"],correct:1,explain:"The ideal gas law remains highly accurate for a huge range of practical conditions — it only breaks down noticeably at extremes of pressure and temperature."}
+  ]
+};
+
+function buildQuiz(n){
+  const container = document.getElementById('quiz'+n+'-items');
+  quizData[n].forEach((item,qi)=>{
+    const div = document.createElement('div');
+    div.className='q-item';
+    div.innerHTML = `<div class="q-text">Q${qi+1}. ${item.q}</div>
+      <div class="q-options" data-qi="${qi}">
+        ${item.opts.map((o,oi)=>`<div class="q-option" data-oi="${oi}" onclick="selectOption(${n},${qi},${oi},this)">${o}</div>`).join('')}
+      </div>
+      <div class="q-explain" id="explain-${n}-${qi}">${item.explain}</div>`;
+    container.appendChild(div);
+  });
+}
+for(let i=1;i<=4;i++) buildQuiz(i);
+
+const userAnswers = {1:{},2:{},3:{},4:{}};
+function selectOption(n,qi,oi,el){
+  const group = el.parentElement.querySelectorAll('.q-option');
+  group.forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  userAnswers[n][qi]=oi;
+}
+
+function gradeQuiz(n){
+  const data = quizData[n];
+  let score=0;
+  data.forEach((item,qi)=>{
+    const group = document.querySelector(`#quiz${n}-items .q-item:nth-child(${qi+1}) .q-options`);
+    const opts = group.querySelectorAll('.q-option');
+    const chosen = userAnswers[n][qi];
+    opts.forEach((o,oi)=>{
+      o.style.pointerEvents='none';
+      if(oi===item.correct) o.classList.add('correct');
+      else if(oi===chosen) o.classList.add('incorrect');
+    });
+    document.getElementById(`explain-${n}-${qi}`).classList.add('show');
+    if(chosen===item.correct) score++;
+  });
+  const resultDiv = document.getElementById('quiz'+n+'-result');
+  resultDiv.classList.add('show');
+  const pct = Math.round(score/4*100);
+  resultDiv.innerHTML = `<div class="score">${score}/4</div><div style="color:var(--text-dim);margin-top:6px;">${pct}% — ${pct>=75?'Excellent work!':pct>=50?'Good effort, review the explanations above.':'Revisit the module content before continuing.'}</div>`;
+  xp = Math.min(maxXp, xp + score*20);
+  updateProgress();
+  if(score>=1){ // require at least attempting; unlock regardless of perfect score to keep flow, but require quiz submission
+    completeModule(n);
+    setTimeout(()=>{ if(document.getElementById('module-'+(n+1))) scrollToModule(n+1); },600);
+  }
+}
+
+updateProgress();
+</script>
+</body>
+</html>
