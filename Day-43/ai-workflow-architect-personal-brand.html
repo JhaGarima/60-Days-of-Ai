@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Workflow Architect — Personal Brand Growth</title>
+<style>
+:root{
+  --bg:#0F1115;
+  --surface:#171A21;
+  --surface-2:#1E222B;
+  --line:#2A2F3A;
+  --text:#E8E6E1;
+  --muted:#8B8F98;
+  --signal:#FF6B4A;
+  --signal-dim:#c94f34;
+  --violet:#7C6CFF;
+  --good:#5FD897;
+  --warn:#FFC857;
+  --radius:14px;
+  --font-display: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Consolas", "SFMono-Regular", Menlo, monospace;
+}
+[data-theme="light"]{
+  --bg:#F5F4F1;
+  --surface:#FFFFFF;
+  --surface-2:#EDEBE6;
+  --line:#DEDBD3;
+  --text:#1B1B1A;
+  --muted:#6B6A66;
+  --signal:#E15A3B;
+  --signal-dim:#c94f34;
+  --violet:#5C4CDB;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  transition:background .3s ease, color .3s ease;
+  min-height:100vh;
+}
+h1,h2,h3,h4{font-family:var(--font-display); letter-spacing:-0.02em; margin:0 0 .4em 0;}
+a{color:var(--signal);}
+button{font-family:inherit; cursor:pointer;}
+.eyebrow{
+  text-transform:uppercase; letter-spacing:.18em; font-size:11px; font-weight:700;
+  color:var(--signal); display:flex; align-items:center; gap:8px; margin-bottom:8px;
+}
+.eyebrow .num{
+  background:var(--signal); color:#0F1115; border-radius:5px; padding:1px 7px; font-weight:800;
+}
+
+/* ============ TOP BAR ============ */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 26px; background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:15px;}
+.brand-mark{
+  width:26px; height:26px; border-radius:50%;
+  background:conic-gradient(var(--signal), var(--violet), var(--signal));
+  position:relative; flex:none;
+}
+.brand-mark::after{
+  content:""; position:absolute; inset:6px; border-radius:50%; background:var(--bg);
+}
+.topbar-actions{display:flex; gap:10px; align-items:center;}
+.icon-btn{
+  background:var(--surface); border:1px solid var(--line); color:var(--text);
+  width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+  font-size:16px; transition:transform .15s ease, border-color .15s ease;
+}
+.icon-btn:hover{border-color:var(--signal); transform:translateY(-1px);}
+.pill-btn{
+  background:var(--signal); color:#0F1115; border:none; font-weight:700; font-size:13px;
+  padding:9px 16px; border-radius:999px; transition:filter .15s ease;
+}
+.pill-btn:hover{filter:brightness(1.08);}
+.pill-btn.ghost{background:transparent; color:var(--text); border:1px solid var(--line);}
+
+/* ============ HERO ============ */
+.hero{
+  padding:64px 26px 40px; max-width:1180px; margin:0 auto; display:grid;
+  grid-template-columns:1.1fr .9fr; gap:48px; align-items:center;
+}
+.hero h1{font-size:44px; line-height:1.05; font-weight:800; max-width:620px;}
+.hero p.lede{color:var(--muted); font-size:16px; max-width:520px; line-height:1.6; margin-top:14px;}
+.hero-meta{display:flex; gap:22px; margin-top:26px; flex-wrap:wrap;}
+.hero-meta div{font-size:12px; color:var(--muted);}
+.hero-meta strong{display:block; font-size:20px; color:var(--text); font-family:var(--font-mono); font-weight:700;}
+
+/* Signature: broadcast diagram */
+.signal-diagram{position:relative; width:100%; aspect-ratio:1/1; max-width:420px; margin:0 auto;}
+.signal-diagram svg{width:100%; height:100%; overflow:visible;}
+.orbit-ring{fill:none; stroke:var(--line); stroke-width:1;}
+.pulse{fill:none; stroke:var(--signal); stroke-width:1.4; opacity:0; transform-origin:center;
+  animation:pulseOut 3.2s ease-out infinite;}
+.pulse.p2{animation-delay:1.05s;}
+.pulse.p3{animation-delay:2.1s;}
+@keyframes pulseOut{
+  0%{opacity:.9; transform:scale(.28);}
+  85%{opacity:0;}
+  100%{opacity:0; transform:scale(1);}
+}
+.node-core{fill:var(--signal);}
+.node{fill:var(--surface); stroke:var(--line); stroke-width:1.4;}
+.node-label{font-family:var(--font-mono); font-size:9.5px; fill:var(--muted); text-transform:uppercase; letter-spacing:.06em;}
+
+/* ============ LAYOUT ============ */
+.shell{max-width:1180px; margin:0 auto; padding:0 26px 100px; display:grid; grid-template-columns:250px 1fr; gap:34px;}
+@media (max-width:900px){ .shell{grid-template-columns:1fr;} .hero{grid-template-columns:1fr;} .hero .signal-diagram{order:-1; max-width:260px;} }
+
+.sidenav{position:sticky; top:78px; align-self:start; display:flex; flex-direction:column; gap:4px; max-height:calc(100vh - 100px); overflow:auto; padding-right:4px;}
+.sidenav .group-label{font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin:14px 0 6px; font-weight:700;}
+.stage-link{
+  display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px; border:1px solid transparent;
+  color:var(--muted); font-size:13.5px; font-weight:600; text-decoration:none; transition:all .15s ease;
+}
+.stage-link .dot{width:6px; height:6px; border-radius:50%; background:var(--line); flex:none;}
+.stage-link:hover{background:var(--surface); color:var(--text);}
+.stage-link.active{background:var(--surface-2); color:var(--text); border-color:var(--line);}
+.stage-link.active .dot{background:var(--signal);}
+.stage-link.done{color:var(--good);}
+.stage-link.done .dot{background:var(--good);}
+.progress-wrap{margin-top:16px; padding:12px; background:var(--surface); border-radius:10px; border:1px solid var(--line);}
+.progress-track{height:6px; border-radius:4px; background:var(--surface-2); overflow:hidden; margin-top:8px;}
+.progress-fill{height:100%; background:linear-gradient(90deg,var(--signal),var(--violet)); width:0%; transition:width .4s ease;}
+.progress-wrap span{font-size:11px; color:var(--muted);}
+
+.main{min-width:0;}
+.section-block{margin-bottom:64px; scroll-margin-top:80px;}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:22px;}
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+@media (max-width:700px){ .grid-2,.grid-3{grid-template-columns:1fr;} }
+
+/* Stage header */
+.stage-head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px; flex-wrap:wrap;}
+.stage-title{font-size:26px;}
+.stage-desc{color:var(--muted); font-size:14px; max-width:640px; line-height:1.55;}
+.stage-check{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); white-space:nowrap;}
+.stage-check input{width:16px; height:16px; accent-color:var(--signal);}
+.time-chip{
+  display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--muted);
+  background:var(--surface-2); border:1px solid var(--line); padding:4px 10px; border-radius:999px; margin-top:8px;
+}
+
+/* Tabs within a stage */
+.tabs{display:flex; gap:6px; flex-wrap:wrap; margin:18px 0 16px; border-bottom:1px solid var(--line); padding-bottom:12px;}
+.tab-btn{
+  background:transparent; border:1px solid var(--line); color:var(--muted); font-size:12.5px; font-weight:600;
+  padding:7px 13px; border-radius:999px; transition:all .15s ease;
+}
+.tab-btn.active{background:var(--signal); color:#0F1115; border-color:var(--signal);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block; animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+ul.clean{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:9px;}
+ul.clean li{padding-left:18px; position:relative; font-size:13.8px; line-height:1.55; color:var(--text);}
+ul.clean li::before{content:"—"; position:absolute; left:0; color:var(--signal);}
+ul.mistakes li::before{content:"✕"; color:#E0654F;}
+ul.tips li::before{content:"↑"; color:var(--good);}
+
+.tool-card{background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:6px;}
+.tool-card .tool-name{font-weight:700; font-size:14.5px; display:flex; justify-content:space-between; align-items:center;}
+.tool-tag{font-size:10px; text-transform:uppercase; letter-spacing:.06em; background:var(--signal); color:#0F1115; padding:2px 7px; border-radius:5px; font-weight:800;}
+.tool-tag.alt{background:transparent; border:1px solid var(--line); color:var(--muted);}
+.tool-card p{margin:0; font-size:12.8px; color:var(--muted); line-height:1.5;}
+
+.prompt-box{
+  background:#0B0D11; border:1px solid var(--line); border-radius:10px; padding:14px 16px; font-family:var(--font-mono);
+  font-size:12.6px; color:#CFE0FF; position:relative; line-height:1.6; white-space:pre-wrap;
+}
+[data-theme="light"] .prompt-box{background:#20232B; color:#E9EEFF;}
+.copy-btn{
+  position:absolute; top:10px; right:10px; background:var(--surface); border:1px solid var(--line); color:var(--muted);
+  font-size:10.5px; padding:4px 9px; border-radius:6px;
+}
+.copy-btn:hover{color:var(--text); border-color:var(--signal);}
+
+.note-area{width:100%; min-height:70px; background:var(--surface-2); border:1px solid var(--line); border-radius:10px;
+  color:var(--text); font-size:13px; padding:10px 12px; resize:vertical; font-family:var(--font-body);}
+.bookmark-btn{
+  display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); background:none; border:1px solid var(--line);
+  padding:6px 11px; border-radius:999px; margin-top:10px;
+}
+.bookmark-btn.active{color:var(--warn); border-color:var(--warn);}
+
+/* Diagram (flow) */
+.flow-strip{display:flex; gap:0; overflow-x:auto; padding:6px 0 16px;}
+.flow-node{
+  min-width:150px; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:12px 14px;
+  margin-right:26px; position:relative; flex:none; cursor:pointer; transition:border-color .15s ease, transform .15s ease;
+}
+.flow-node:hover{border-color:var(--signal); transform:translateY(-2px);}
+.flow-node.current{border-color:var(--signal); box-shadow:0 0 0 1px var(--signal);}
+.flow-node::after{
+  content:"→"; position:absolute; right:-22px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:16px;
+}
+.flow-node:last-child::after{content:none;}
+.flow-node .fn-num{font-family:var(--font-mono); font-size:10px; color:var(--signal); font-weight:700;}
+.flow-node .fn-title{font-size:12.6px; font-weight:700; margin-top:3px;}
+
+/* Decision tree */
+.dtree{display:flex; flex-direction:column; gap:10px;}
+.dtree-q{background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:14px;}
+.dtree-q p{margin:0 0 10px; font-size:13.5px; font-weight:700;}
+.dtree-options{display:flex; gap:10px; flex-wrap:wrap;}
+.dtree-opt{background:var(--surface); border:1px solid var(--line); padding:8px 13px; border-radius:8px; font-size:12.5px; color:var(--text);}
+.dtree-opt:hover{border-color:var(--violet);}
+.dtree-result{
+  margin-top:10px; font-size:13px; color:var(--good); background:var(--surface); border:1px dashed var(--good);
+  padding:10px 12px; border-radius:8px; display:none;
+}
+.dtree-result.show{display:block;}
+
+/* Comparison table */
+table.compare{width:100%; border-collapse:collapse; font-size:12.8px;}
+table.compare th, table.compare td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line);}
+table.compare th{color:var(--muted); font-weight:700; text-transform:uppercase; font-size:10.5px; letter-spacing:.06em;}
+table.compare tr:last-child td{border-bottom:none;}
+.badge{display:inline-block; font-size:10.5px; padding:2px 8px; border-radius:999px; background:var(--surface-2); border:1px solid var(--line); color:var(--muted);}
+.badge.best{background:var(--signal); color:#0F1115; border-color:var(--signal); font-weight:700;}
+
+.chiplist{display:flex; flex-wrap:wrap; gap:8px;}
+.chip{background:var(--surface-2); border:1px solid var(--line); padding:6px 12px; border-radius:999px; font-size:12px; color:var(--text);}
+
+/* Closing sections */
+.closing-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:20px;}
+@media (max-width:700px){.closing-grid{grid-template-columns:1fr;}}
+.stack-item{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); font-size:13.5px;}
+.stack-item:last-child{border-bottom:none;}
+.stack-item .role{color:var(--muted); font-size:11.5px;}
+
+footer{text-align:center; padding:40px 20px; color:var(--muted); font-size:12px; border-top:1px solid var(--line); margin-top:40px;}
+
+@media print{
+  .topbar, .sidenav, .tabs, .bookmark-btn, .copy-btn, .icon-btn, .flow-node::after{display:none !important;}
+  .shell{grid-template-columns:1fr; display:block;}
+  .tab-panel{display:block !important;}
+  body{background:#fff; color:#000;}
+  .card, .tool-card, .prompt-box{border:1px solid #ccc; background:#fff !important; color:#000 !important;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="brand-mark"></span> AI Workflow Architect</div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="themeToggle" title="Toggle dark/light mode">◐</button>
+    <button class="pill-btn ghost" id="printBtn">Print Guide</button>
+    <button class="pill-btn" id="resetBtn">Reset Progress</button>
+  </div>
+</div>
+
+<div class="hero">
+  <div>
+    <div class="eyebrow"><span class="num">WORKFLOW</span> Marketing → Social Media → Multi-Platform</div>
+    <h1>Personal Brand Growth, mapped end to end.</h1>
+    <p class="lede">One story, broadcast everywhere. This workflow takes your voice from raw idea to a repurposed, scheduled, and measured presence across every platform that matters — with the exact AI tool, prompt, and decision at each step.</p>
+    <div class="hero-meta">
+      <div><strong>8</strong>Stages</div>
+      <div><strong>~14–20 hrs</strong>First full cycle</div>
+      <div><strong>5+</strong>Platforms covered</div>
+      <div><strong>32</strong>Ready-to-use prompts</div>
+    </div>
+  </div>
+  <div class="signal-diagram">
+    <svg viewBox="0 0 400 400">
+      <circle class="orbit-ring" cx="200" cy="200" r="80"/>
+      <circle class="orbit-ring" cx="200" cy="200" r="140"/>
+      <circle class="pulse p1" cx="200" cy="200" r="60"/>
+      <circle class="pulse p2" cx="200" cy="200" r="60"/>
+      <circle class="pulse p3" cx="200" cy="200" r="60"/>
+      <circle class="node-core" cx="200" cy="200" r="22"/>
+      <text x="200" y="205" text-anchor="middle" font-family="Consolas,monospace" font-size="10" fill="#0F1115" font-weight="700">YOU</text>
+
+      <g>
+        <circle class="node" cx="200" cy="60" r="26"/>
+        <text class="node-label" x="200" y="64" text-anchor="middle">LinkedIn</text>
+      </g>
+      <g>
+        <circle class="node" cx="340" cy="150" r="26"/>
+        <text class="node-label" x="340" y="154" text-anchor="middle">Insta</text>
+      </g>
+      <g>
+        <circle class="node" cx="315" cy="310" r="26"/>
+        <text class="node-label" x="315" y="314" text-anchor="middle">YouTube</text>
+      </g>
+      <g>
+        <circle class="node" cx="120" cy="335" r="26"/>
+        <text class="node-label" x="120" y="339" text-anchor="middle">X</text>
+      </g>
+      <g>
+        <circle class="node" cx="55" cy="165" r="26"/>
+        <text class="node-label" x="55" y="169" text-anchor="middle">TikTok</text>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<div class="shell">
+  <nav class="sidenav" id="sidenav">
+    <div class="group-label">Workflow Stages</div>
+    <!-- stage links injected -->
+    <div class="progress-wrap">
+      <span id="progressLabel">0 / 8 stages complete</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div class="group-label">Reference</div>
+    <a class="stage-link" href="#diagram"><span class="dot"></span>Workflow Diagram</a>
+    <a class="stage-link" href="#decisiontree"><span class="dot"></span>Platform Decision Tree</a>
+    <a class="stage-link" href="#summary"><span class="dot"></span>Summary &amp; Stack</a>
+    <a class="stage-link" href="#resources"><span class="dot"></span>Resources &amp; Keywords</a>
+  </nav>
+
+  <main class="main">
+
+    <section class="section-block" id="diagram">
+      <div class="eyebrow"><span class="num">MAP</span>End-to-End Flow</div>
+      <h2 class="stage-title">The full workflow at a glance</h2>
+      <p class="stage-desc">Click any stage to jump to its full breakdown.</p>
+      <div class="flow-strip" id="flowStrip"></div>
+    </section>
+
+    <div id="stagesContainer"></div>
+
+    <section class="section-block" id="decisiontree">
+      <div class="eyebrow"><span class="num">DECIDE</span>Prioritization Logic</div>
+      <h2 class="stage-title">Which platform should you prioritize first?</h2>
+      <p class="stage-desc">A quick decision tree for allocating your limited time as a solo creator.</p>
+      <div class="card">
+        <div class="dtree">
+          <div class="dtree-q">
+            <p>1. What's your primary goal right now?</p>
+            <div class="dtree-options">
+              <button class="dtree-opt" data-r="Start on LinkedIn: professional credibility compounds fastest through long-form text posts and comments in your niche.">Career credibility / consulting</button>
+              <button class="dtree-opt" data-r="Start on Instagram + short-form video: visual storytelling and Reels build audience fastest for products and lifestyle brands.">Audience & product sales</button>
+              <button class="dtree-opt" data-r="Start on YouTube: even 1 long-form video a week builds a durable, searchable asset that keeps compounding.">Long-term authority & SEO</button>
+              <button class="dtree-opt" data-r="Start on X (Twitter): fast feedback loops and real-time conversation are unmatched for idea validation.">Fast feedback on ideas</button>
+            </div>
+            <div class="dtree-result" id="dtreeResult"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" id="summary">
+      <div class="eyebrow"><span class="num">WRAP</span>Closing Overview</div>
+      <h2 class="stage-title">Workflow Summary</h2>
+      <div class="card" style="margin-bottom:20px;">
+        <p style="font-size:14px; line-height:1.7; color:var(--text); margin:0;">
+        This workflow turns personal brand growth into a repeatable weekly system rather than a one-off content push. You define a durable strategic foundation once, then run a lightweight loop every week: plan one core idea, produce it once in its native long-form format, repurpose it across four to five platforms with format-specific edits, schedule the batch, spend focused time in the replies and DMs it generates, and close the week by reading the three numbers that actually predict growth. The AI tools throughout are chosen to remove the slowest steps — writing, reformatting, and design — while the judgment (choosing the idea, the voice, and who to reply to) stays with you.
+        </p>
+      </div>
+      <div class="closing-grid">
+        <div class="card">
+          <h3 style="font-size:16px;">Recommended AI Stack</h3>
+          <div class="stack-item"><span>Claude</span><span class="role">Strategy, writing, repurposing</span></div>
+          <div class="stack-item"><span>ChatGPT</span><span class="role">Fast ideation, alt captions</span></div>
+          <div class="stack-item"><span>Canva (Magic Studio)</span><span class="role">Graphics, carousels, thumbnails</span></div>
+          <div class="stack-item"><span>CapCut</span><span class="role">Short-form video editing</span></div>
+          <div class="stack-item"><span>Descript</span><span class="role">Long-form video/podcast editing</span></div>
+          <div class="stack-item"><span>Buffer / Later</span><span class="role">Scheduling & queueing</span></div>
+          <div class="stack-item"><span>Shield Analytics / native insights</span><span class="role">Performance tracking</span></div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:16px;">Future Automation Opportunities</h3>
+          <ul class="clean">
+            <li>Auto-generate a weekly content brief from your saved bookmarks and analytics using a Claude-powered script.</li>
+            <li>Connect a form (ideas inbox) to auto-draft first-pass captions overnight for morning review.</li>
+            <li>Auto-tag top-performing posts and feed them back into your next planning session as reference examples.</li>
+            <li>Build a simple dashboard (like this one) that pulls real follower/engagement numbers via each platform's API.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" id="resources">
+      <div class="eyebrow"><span class="num">LEARN</span>Go Deeper</div>
+      <h2 class="stage-title">Resources, Communities &amp; Keywords</h2>
+      <div class="closing-grid">
+        <div class="card">
+          <h3 style="font-size:16px;">Learning Resources</h3>
+          <ul class="clean">
+            <li>"Building a StoryBrand" — Donald Miller (messaging framework)</li>
+            <li>Ali Abdaal's content systems newsletter (repurposing workflows)</li>
+            <li>Justin Welsh's "The Operating System" (LinkedIn-specific growth)</li>
+            <li>Platform-native creator academies (Meta Creator Studio, YouTube Creator Academy)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 style="font-size:16px;">Communities</h3>
+          <div class="chiplist">
+            <span class="chip">r/PersonalBranding</span>
+            <span class="chip">Justin Welsh Cohort</span>
+            <span class="chip">Creator Economy Slack groups</span>
+            <span class="chip">Indie Hackers</span>
+            <span class="chip">LinkedIn creator circles</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:16px;">Search Keywords</h3>
+          <div class="chiplist">
+            <span class="chip">personal brand content system</span>
+            <span class="chip">content repurposing workflow</span>
+            <span class="chip">AI content calendar</span>
+            <span class="chip">multi-platform posting strategy</span>
+            <span class="chip">creator analytics tools</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:16px;">Additional AI Prompts</h3>
+          <div class="prompt-box">Analyze my last 10 posts on [platform] and identify the 3 recurring themes that got the most engagement. Then suggest 5 new post ideas that build on those themes without repeating them.<button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>AI Workflow Architect — generated for the Personal Brand Growth workflow. Your progress, notes, and bookmarks are saved locally in this browser.</footer>
+
+<script>
+const STAGES = [
+  {
+    id:"foundation", num:1, title:"Foundation & Strategy", time:"2–3 hrs (one-time)",
+    desc:"Define the niche, audience, and voice that every future post will be filtered through.",
+    objectives:["Articulate a specific niche you can credibly own","Define your ideal audience in concrete terms","Establish a consistent brand voice and 3 content pillars"],
+    tasks:["Write a one-sentence positioning statement","Research 5 creators in your space and note gaps","Draft your voice guide (tone, words to avoid, POV)","Choose 3 content pillars you can sustain long-term"],
+    tools:[
+      {name:"Claude", tag:"Best", why:"Strong at structured strategic reasoning and turning vague ideas into a sharp positioning statement through back-and-forth questioning.", alt:false},
+      {name:"ChatGPT", tag:"Alt", why:"Good for rapid brainstorming of niche angles if you want more volume of raw ideas to react to.", alt:true},
+      {name:"Notion AI", tag:"Alt", why:"Useful if you're already documenting your strategy in Notion and want it drafted in place.", alt:true}
+    ],
+    prompts:["I want to build a personal brand around [topic]. Ask me 5 questions one at a time to help me find a specific, ownable niche, then summarize my positioning in one sentence.",
+      "Here are 5 creators in my space: [list]. Analyze what each one is known for, then identify a gap or underserved angle I could own."],
+    bestPractices:["Pick a niche narrow enough to be memorable, broad enough to sustain a year of content","Write your voice guide down — don't keep it in your head","Revisit positioning every quarter, not every week"],
+    mistakes:["Trying to appeal to everyone instead of a specific person","Copying a niche wholesale from a creator you admire","Skipping this stage and jumping straight to posting"],
+    outputs:["Positioning statement","Audience profile","Voice guide document","3 defined content pillars"],
+    efficiency:"Batch this as a single deep-work session — strategy drift is the #1 cause of inconsistent brands."
+  },
+  {
+    id:"planning", num:2, title:"Content Planning & Ideation", time:"1.5 hrs / week",
+    desc:"Turn your pillars into a concrete list of ideas worth making this week.",
+    objectives:["Generate a healthy backlog of ideas per pillar","Prioritize ideas by effort vs. likely resonance","Assign one core idea per week"],
+    tasks:["Brain-dump raw ideas into a running list","Use AI to expand thin ideas into full concepts","Score ideas on effort vs. impact","Pick this week's single core idea"],
+    tools:[
+      {name:"Claude", tag:"Best", why:"Handles long, evolving idea lists well and can reason about which idea best fits your pillars and audience stage.", alt:false},
+      {name:"Perplexity", tag:"Alt", why:"Useful for surfacing trending questions and discussions in your niche to seed new ideas.", alt:true},
+      {name:"Notion / Trello", tag:"Alt", why:"Good lightweight backlog if you prefer a kanban view over a doc.", alt:true}
+    ],
+    prompts:["Here are my 3 content pillars: [pillars]. Generate 15 specific post ideas across all three, ranked by how likely each is to resonate with [audience].",
+      "Take this rough idea: '[idea]'. Expand it into a full concept with a hook, 3 key points, and a suggested format (video, carousel, text post)."],
+    bestPractices:["Keep a running 'idea inbox' you add to daily, not just weekly","Favor ideas that are specific and contrarian over generic advice","Plan one core idea per week, not one idea per platform"],
+    mistakes:["Planning platform-first instead of idea-first","Letting the idea backlog run dry before planning","Chasing trends unrelated to your pillars"],
+    outputs:["Prioritized idea backlog","This week's chosen core idea and format"],
+    efficiency:"Batch a month of ideation in one sitting rather than deciding fresh every week."
+  },
+  {
+    id:"creation", num:3, title:"Content Creation & Production", time:"3–4 hrs / week",
+    desc:"Produce the core piece of content in its strongest native format.",
+    objectives:["Draft the core long-form piece (article, video script, or carousel)","Refine tone and hook until they match your voice guide","Produce the raw asset (writing, filming, or recording)"],
+    tasks:["Draft a script or article outline with AI, then rewrite in your own voice","Record or write the core asset","Do one editing pass for clarity and pacing","Design any needed visuals"],
+    tools:[
+      {name:"Claude", tag:"Best", why:"Excellent for long-form drafting and iterative rewriting that preserves a consistent, specific voice across drafts.", alt:false},
+      {name:"Descript", tag:"Alt", why:"Best for editing spoken video/audio via transcript — cuts filler words and awkward pauses fast.", alt:true},
+      {name:"Canva Magic Studio", tag:"Alt", why:"Fast for turning an outline into a designed carousel without manual layout work.", alt:true}
+    ],
+    prompts:["Draft a 600-word article on '[idea]' in a direct, no-fluff tone. Open with a specific claim, not a question. Avoid generic advice — include one real example.",
+      "Turn this article into a 60-second video script with a hook in the first 3 seconds, 3 main beats, and a clear closing line."],
+    bestPractices:["Always rewrite AI drafts in your own words for the opening and closing lines","Record video in one longer take rather than many short clips","Keep a swipe file of hooks that have worked before"],
+    mistakes:["Publishing AI drafts unedited — audiences can tell","Spending too long polishing before ever publishing","Perfecting a video edit before nailing the script"],
+    outputs:["Finished core asset (article, video, or carousel)","Supporting visuals"],
+    efficiency:"Write the hook and closing line yourself first; let AI fill the middle."
+  },
+  {
+    id:"repurpose", num:4, title:"Repurposing & Multi-Platform Adaptation", time:"2 hrs / week",
+    desc:"Turn one core asset into 4–5 platform-native versions without diluting the message.",
+    objectives:["Adapt the core message to each platform's format and norms","Preserve the core argument while changing length and tone","Avoid identical cross-posting"],
+    tasks:["Convert the core piece into a LinkedIn post","Extract a short-form video clip for Instagram/TikTok","Draft a thread version for X","Pull a quote or stat for a visual graphic"],
+    tools:[
+      {name:"Claude", tag:"Best", why:"Reliable at rewriting the same idea in genuinely different structures per platform, rather than just shortening the same sentences.", alt:false},
+      {name:"CapCut", tag:"Alt", why:"Fast for clipping and captioning short-form video for TikTok/Reels/Shorts.", alt:true},
+      {name:"Canva", tag:"Alt", why:"Good for turning a key quote or stat into a shareable static graphic.", alt:true}
+    ],
+    prompts:["Here is my core article: [paste]. Rewrite it as a LinkedIn post (150-200 words, line breaks, no hashtags spam) that keeps the same core argument.",
+      "From this article, extract the single most surprising line and write 3 short-form video hook variations built around it."],
+    bestPractices:["Repurpose for platform norms, not just platform length limits","Lead each version with a different angle on the same idea","Keep a repurposing checklist so no platform gets forgotten"],
+    mistakes:["Copy-pasting the same text across every platform","Repurposing everything except the hook, which matters most","Treating repurposing as an afterthought instead of a planned step"],
+    outputs:["LinkedIn post","Short-form video/clip + caption","X thread","1 supporting graphic"],
+    efficiency:"Do all repurposing in one batch session right after the core asset is finished, while context is fresh."
+  },
+  {
+    id:"scheduling", num:5, title:"Scheduling & Publishing", time:"45 min / week",
+    desc:"Queue the week's content at optimal times without daily manual posting.",
+    objectives:["Schedule all platform versions for the week","Sequence posts to avoid overlap and fatigue","Confirm formatting renders correctly per platform"],
+    tasks:["Load all assets into a scheduler","Set platform-specific optimal posting times","Preview each post before confirming","Tag/categorize for later analytics review"],
+    tools:[
+      {name:"Buffer", tag:"Best", why:"Clean multi-platform queueing with straightforward analytics tagging, well suited to solo creators.", alt:false},
+      {name:"Later", tag:"Alt", why:"Strong visual calendar view, especially convenient for Instagram-heavy weeks.", alt:true},
+      {name:"Native schedulers", tag:"Alt", why:"Free and sufficient if you're only active on 1–2 platforms.", alt:true}
+    ],
+    prompts:["Given my audience is mostly [region/timezone], suggest optimal posting time windows for LinkedIn, Instagram, and X this week."],
+    bestPractices:["Schedule a full week at once to protect daily focus time","Leave 1 flexible slot for timely/reactive posts","Double check platform previews before confirming, especially line breaks"],
+    mistakes:["Posting everything at the same time across platforms","Scheduling and forgetting to check draft previews","Ignoring each platform's actual peak audience hours"],
+    outputs:["Full week's content queued","Posting calendar for the week"],
+    efficiency:"Batch scheduling once a week eliminates the daily 'what do I post today' decision entirely."
+  },
+  {
+    id:"engagement", num:6, title:"Engagement & Community Building", time:"30–45 min / day",
+    desc:"Turn passive viewers into an active community through consistent, genuine interaction.",
+    objectives:["Reply to comments and DMs promptly","Proactively engage with others in your niche","Identify and nurture relationships with power followers"],
+    tasks:["Reply to all comments within 24 hours","Spend 15 min/day commenting on others' posts in your niche","Move promising conversations to DMs","Note recurring questions for future content ideas"],
+    tools:[
+      {name:"Claude", tag:"Best", why:"Helpful for drafting thoughtful reply variations quickly when comment volume is high, while you still personalize each one.", alt:false},
+      {name:"Shield Analytics", tag:"Alt", why:"Surfaces your top engaging followers on X so you know who to prioritize replying to.", alt:true}
+    ],
+    prompts:["Someone commented '[comment]' on my post about [topic]. Draft 2 reply options — one that adds a new insight, one that asks a genuine follow-up question."],
+    bestPractices:["Always reply as yourself, not a generic brand voice","Engage on others' posts before checking your own notifications","Treat repeated questions in comments as your next content idea"],
+    mistakes:["Only engaging on your own posts and ignoring the wider community","Copy-pasting identical replies across comments","Letting DMs from genuine prospects go unanswered for days"],
+    outputs:["Cleared comment/DM queue","2-3 new relationships nurtured","List of recurring audience questions"],
+    efficiency:"Time-box engagement to two fixed daily windows instead of checking notifications constantly."
+  },
+  {
+    id:"analytics", num:7, title:"Analytics & Optimization", time:"1 hr / week",
+    desc:"Read the numbers that actually predict growth and adjust the next cycle accordingly.",
+    objectives:["Identify top and bottom performing posts of the week","Diagnose why they performed the way they did","Feed learnings back into next week's planning"],
+    tasks:["Pull engagement and reach numbers per platform","Rank posts by save/share rate, not just likes","Write one sentence on why the top post worked","Update the idea backlog based on findings"],
+    tools:[
+      {name:"Native platform insights", tag:"Best", why:"Most accurate first-party data; no reason to pay for a third-party tool until you're posting on 4+ platforms consistently.", alt:false},
+      {name:"Claude", tag:"Alt", why:"Good for spotting patterns across a week of pasted-in metrics that are hard to eyeball manually.", alt:true},
+      {name:"Shield Analytics", tag:"Alt", why:"Worth it once X/Twitter is a serious growth channel for deeper follower-level insights.", alt:true}
+    ],
+    prompts:["Here are this week's post metrics: [paste table]. Identify the top 2 and bottom 2 performers by save/share rate and suggest one hypothesis for each."],
+    bestPractices:["Track save/share rate over likes — it predicts algorithmic reach better","Compare posts within the same pillar, not across unrelated topics","Review weekly, not daily — daily numbers are too noisy"],
+    mistakes:["Obsessing over vanity metrics like raw like counts","Changing strategy after one underperforming post","Never actually closing the loop back into planning"],
+    outputs:["Weekly performance summary","1-2 concrete adjustments for next week's plan"],
+    efficiency:"Keep a single running spreadsheet or note — trends matter more than any single week's numbers."
+  },
+  {
+    id:"growth", num:8, title:"Growth & Monetization Readiness", time:"Ongoing, 1 hr / month",
+    desc:"Once the loop is consistent, layer in deliberate growth tactics and early monetization options.",
+    objectives:["Identify collaboration and cross-promotion opportunities","Build a lightweight email list independent of platforms","Explore first monetization options once audience is warm"],
+    tasks:["Reach out to 1-2 adjacent creators for collaboration monthly","Add a simple newsletter signup to your bio/profile","Test one low-commitment offer (guide, consult call, community)","Review which platform is driving the most qualified interest"],
+    tools:[
+      {name:"Claude", tag:"Best", why:"Useful for drafting collaboration pitches and evaluating which monetization option fits your audience size and niche honestly.", alt:false},
+      {name:"ConvertKit / Beehiiv", tag:"Alt", why:"Simple, creator-focused email tools to start owning your audience outside social platforms.", alt:true}
+    ],
+    prompts:["I have [audience size] followers mostly interested in [topic]. Suggest 3 realistic monetization options for this stage, with pros and cons for each."],
+    bestPractices:["Don't monetize before trust is established — sequence matters","Own an email list early, even if small — platforms can change overnight","Collaborate with creators slightly ahead of and slightly behind you"],
+    mistakes:["Chasing every platform equally instead of doubling down on what's working","Launching a paid offer before validating demand with a free one","Neglecting an owned channel (email) entirely"],
+    outputs:["1 active collaboration in motion","Functioning email capture","1 tested low-commitment offer"],
+    efficiency:"Revisit this stage monthly, not weekly — growth tactics need time to compound before judging them."
+  }
+];
+
+const stagesContainer = document.getElementById('stagesContainer');
+const sidenav = document.getElementById('sidenav');
+const flowStrip = document.getElementById('flowStrip');
+
+// Build sidenav stage links (insert after group-label, before progress-wrap)
+const progressWrap = sidenav.querySelector('.progress-wrap');
+STAGES.forEach(s=>{
+  const a = document.createElement('a');
+  a.href = '#'+s.id;
+  a.className = 'stage-link';
+  a.dataset.stage = s.id;
+  a.innerHTML = '<span class="dot"></span>'+s.num+'. '+s.title;
+  sidenav.insertBefore(a, progressWrap);
+});
+
+// Build flow strip
+STAGES.forEach(s=>{
+  const d = document.createElement('div');
+  d.className = 'flow-node';
+  d.dataset.target = s.id;
+  d.innerHTML = '<div class="fn-num">STAGE '+s.num+'</div><div class="fn-title">'+s.title+'</div>';
+  d.addEventListener('click', ()=>{ document.getElementById(s.id).scrollIntoView({behavior:'smooth'}); });
+  flowStrip.appendChild(d);
+});
+
+const TABS = [
+  {key:'overview', label:'Overview'},
+  {key:'tools', label:'AI Tools'},
+  {key:'prompts', label:'Prompts'},
+  {key:'practice', label:'Best Practices'},
+  {key:'mistakes', label:'Mistakes'},
+  {key:'notes', label:'Notes'}
+];
+
+function renderStage(s){
+  const el = document.createElement('section');
+  el.className = 'section-block';
+  el.id = s.id;
+
+  const toolCards = s.tools.map(t=>
+    '<div class="tool-card"><div class="tool-name">'+t.name+'<span class="tool-tag '+(t.alt?'alt':'')+'">'+t.tag+'</span></div><p>'+t.why+'</p></div>'
+  ).join('');
+
+  const promptBoxes = s.prompts.map(p=>
+    '<div class="prompt-box">'+p+'<button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>'
+  ).join('');
+
+  const objList = s.objectives.map(o=>'<li>'+o+'</li>').join('');
+  const taskList = s.tasks.map(o=>'<li>'+o+'</li>').join('');
+  const practiceList = s.bestPractices.map(o=>'<li>'+o+'</li>').join('');
+  const mistakeList = s.mistakes.map(o=>'<li>'+o+'</li>').join('');
+  const outputList = s.outputs.map(o=>'<li>'+o+'</li>').join('');
+
+  el.innerHTML = `
+    <div class="stage-head">
+      <div>
+        <div class="eyebrow"><span class="num">STAGE ${s.num}</span> ${s.time}</div>
+        <h2 class="stage-title">${s.title}</h2>
+        <p class="stage-desc">${s.desc}</p>
+        <span class="time-chip">⏱ ${s.time}</span>
+      </div>
+      <label class="stage-check">
+        <input type="checkbox" data-done="${s.id}"> Mark stage complete
+      </label>
+    </div>
+    <div class="card">
+      <div class="tabs" data-stagetabs="${s.id}">
+        ${TABS.map((t,i)=>'<button class="tab-btn '+(i===0?'active':'')+'" data-tab="'+t.key+'">'+t.label+'</button>').join('')}
+      </div>
+
+      <div class="tab-panel active" data-panel="overview">
+        <div class="grid-2">
+          <div>
+            <h3 style="font-size:14px;">Objectives</h3>
+            <ul class="clean">${objList}</ul>
+          </div>
+          <div>
+            <h3 style="font-size:14px;">Tasks</h3>
+            <ul class="clean">${taskList}</ul>
+          </div>
+        </div>
+        <h3 style="font-size:14px; margin-top:18px;">Expected Outputs</h3>
+        <div class="chiplist">${s.outputs.map(o=>'<span class="chip">'+o+'</span>').join('')}</div>
+        <h3 style="font-size:14px; margin-top:18px;">Efficiency Tip</h3>
+        <p style="font-size:13.5px; color:var(--muted); line-height:1.6;">${s.efficiency}</p>
+      </div>
+
+      <div class="tab-panel" data-panel="tools">
+        <div class="grid-3">${toolCards}</div>
+      </div>
+
+      <div class="tab-panel" data-panel="prompts">
+        ${promptBoxes}
+      </div>
+
+      <div class="tab-panel" data-panel="practice">
+        <ul class="clean tips">${practiceList}</ul>
+      </div>
+
+      <div class="tab-panel" data-panel="mistakes">
+        <ul class="clean mistakes">${mistakeList}</ul>
+      </div>
+
+      <div class="tab-panel" data-panel="notes">
+        <textarea class="note-area" placeholder="Jot notes for this stage — saved automatically in this browser." data-note="${s.id}"></textarea>
+        <button class="bookmark-btn" data-bookmark="${s.id}">☆ Bookmark this stage</button>
+      </div>
+    </div>
+  `;
+  stagesContainer.appendChild(el);
+}
+
+STAGES.forEach(renderStage);
+
+// Tabs behavior
+document.querySelectorAll('.tabs').forEach(tabset=>{
+  tabset.addEventListener('click', e=>{
+    const btn = e.target.closest('.tab-btn');
+    if(!btn) return;
+    const key = btn.dataset.tab;
+    tabset.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b===btn));
+    const card = tabset.closest('.card');
+    card.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.dataset.panel===key));
+  });
+});
+
+// Copy prompt
+function copyPrompt(btn){
+  const text = btn.parentElement.textContent.replace('Copy','').trim();
+  navigator.clipboard.writeText(text).then(()=>{
+    const old = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(()=>btn.textContent = old, 1400);
+  });
+}
+
+// ===== Persistence =====
+const STORE_KEY = 'wf_architect_personal_brand_v1';
+function loadStore(){
+  try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; }
+}
+function saveStore(store){ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
+let store = loadStore();
+store.done = store.done || {};
+store.notes = store.notes || {};
+store.bookmarks = store.bookmarks || {};
+store.theme = store.theme || 'dark';
+
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', store.theme);
+  document.getElementById('themeToggle').textContent = store.theme==='dark' ? '◐' : '◑';
+}
+applyTheme();
+
+function updateProgressUI(){
+  const total = STAGES.length;
+  const completed = STAGES.filter(s=>store.done[s.id]).length;
+  document.getElementById('progressLabel').textContent = completed+' / '+total+' stages complete';
+  document.getElementById('progressFill').style.width = (completed/total*100)+'%';
+  STAGES.forEach(s=>{
+    const link = sidenav.querySelector('.stage-link[data-stage="'+s.id+'"]');
+    if(link) link.classList.toggle('done', !!store.done[s.id]);
+    const cb = document.querySelector('input[data-done="'+s.id+'"]');
+    if(cb) cb.checked = !!store.done[s.id];
+  });
+}
+updateProgressUI();
+
+// restore notes/bookmarks
+document.querySelectorAll('textarea[data-note]').forEach(ta=>{
+  const id = ta.dataset.note;
+  ta.value = store.notes[id] || '';
+  ta.addEventListener('input', ()=>{ store.notes[id] = ta.value; saveStore(store); });
+});
+document.querySelectorAll('.bookmark-btn').forEach(b=>{
+  const id = b.dataset.bookmark;
+  if(store.bookmarks[id]){ b.classList.add('active'); b.textContent = '★ Bookmarked'; }
+  b.addEventListener('click', ()=>{
+    store.bookmarks[id] = !store.bookmarks[id];
+    b.classList.toggle('active', store.bookmarks[id]);
+    b.textContent = store.bookmarks[id] ? '★ Bookmarked' : '☆ Bookmark this stage';
+    saveStore(store);
+  });
+});
+document.querySelectorAll('input[data-done]').forEach(cb=>{
+  const id = cb.dataset.done;
+  cb.addEventListener('change', ()=>{
+    store.done[id] = cb.checked;
+    saveStore(store);
+    updateProgressUI();
+  });
+});
+
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  store.theme = store.theme==='dark' ? 'light' : 'dark';
+  saveStore(store);
+  applyTheme();
+});
+document.getElementById('printBtn').addEventListener('click', ()=>window.print());
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(confirm('Reset all progress, notes, and bookmarks?')){
+    localStorage.removeItem(STORE_KEY);
+    store = {done:{}, notes:{}, bookmarks:{}, theme:store.theme};
+    document.querySelectorAll('textarea[data-note]').forEach(ta=>ta.value='');
+    document.querySelectorAll('.bookmark-btn').forEach(b=>{ b.classList.remove('active'); b.textContent='☆ Bookmark this stage'; });
+    updateProgressUI();
+  }
+});
+
+// Active sidenav highlight on scroll
+const allSections = [...document.querySelectorAll('.section-block')];
+const linkMap = {};
+sidenav.querySelectorAll('.stage-link').forEach(l=>{ linkMap[l.getAttribute('href').slice(1)] = l; });
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    const id = entry.target.id;
+    const link = linkMap[id];
+    if(!link) return;
+    if(entry.isIntersecting) {
+      Object.values(linkMap).forEach(l=>l.classList.remove('active'));
+      link.classList.add('active');
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+allSections.forEach(s=>observer.observe(s));
+
+// Decision tree
+document.querySelectorAll('.dtree-opt').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const result = document.getElementById('dtreeResult');
+    result.textContent = btn.dataset.r;
+    result.classList.add('show');
+  });
+});
+</script>
+</body>
+</html>
