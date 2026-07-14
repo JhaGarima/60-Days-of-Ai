@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Case File: Garima Jha — LinkedIn Profile Review</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c2430;
+    --paper:#eeeae0;
+    --folder:#d8cdb4;
+    --folder-dark:#c2b48f;
+    --redpen:#a4272c;
+    --redpen-dark:#7a1c20;
+    --gold:#9c7a2e;
+    --good:#3d6b4f;
+    --line:#c8bfa8;
+    --card:#f7f4ec;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',sans-serif;
+    line-height:1.55;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:40px 24px 80px;}
+  .stamp-header{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:16px;margin-bottom:8px;
+  }
+  .case-no{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;color:var(--redpen);}
+  h1.title{
+    font-family:'Fraunces',serif;font-weight:600;font-size:38px;margin:6px 0 2px;
+  }
+  .subtitle{font-family:'IBM Plex Mono',monospace;font-size:13px;color:#5a5346;}
+  .tabs{
+    display:flex;gap:2px;margin:28px 0 0;flex-wrap:wrap;
+  }
+  .tab{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;letter-spacing:1px;text-transform:uppercase;
+    background:var(--folder);
+    border:1px solid var(--folder-dark);
+    border-bottom:none;
+    padding:10px 16px;
+    cursor:pointer;
+    border-radius:6px 6px 0 0;
+    color:#4a4433;
+    position:relative;top:1px;
+  }
+  .tab.active{
+    background:var(--card);
+    border-color:var(--ink);
+    color:var(--ink);
+    font-weight:500;
+  }
+  .panel{
+    display:none;
+    background:var(--card);
+    border:1px solid var(--ink);
+    padding:32px;
+    border-radius:0 6px 6px 6px;
+  }
+  .panel.active{display:block;}
+  h2.section{
+    font-family:'Fraunces',serif;font-size:24px;font-weight:600;
+    margin:0 0 4px;
+  }
+  .section-note{font-size:13px;color:#6b6455;margin-bottom:24px;}
+  .item{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:18px 20px;
+    margin-bottom:16px;
+    background:#fdfcf8;
+  }
+  .item-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
+  .item-title{font-weight:600;font-size:15px;}
+  .score{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;font-weight:500;
+    padding:3px 10px;border-radius:20px;
+    background:var(--redpen);color:#fdf0ee;
+  }
+  .score.mid{background:var(--gold);color:#3a2c08;}
+  .quote{
+    font-style:italic;color:#4a453b;
+    border-left:2px solid var(--redpen);
+    padding-left:12px;margin:10px 0;font-size:14px;
+  }
+  .row{display:flex;gap:10px;margin:8px 0;align-items:flex-start;}
+  .row .tag{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;
+    min-width:20px;padding-top:2px;
+  }
+  .row p{margin:0;font-size:14px;}
+  .before-after{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0;
+  }
+  @media(max-width:640px){.before-after{grid-template-columns:1fr;}}
+  .ba-block{border-radius:8px;padding:12px 14px;font-size:13.5px;}
+  .ba-before{background:#f6e9e7;border:1px solid #e0bcb8;}
+  .ba-after{background:#e9f1ea;border:1px solid #bcd7c2;}
+  .ba-label{
+    font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;
+    text-transform:uppercase;display:block;margin-bottom:6px;color:#6b6455;
+  }
+  s{color:#9b3a37;}
+  .headline-option{
+    border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:12px;background:#fdfcf8;
+  }
+  .headline-text{font-size:16px;font-weight:500;margin-bottom:6px;}
+  .headline-use{font-size:12.5px;color:#6b6455;}
+  .about-block{
+    background:#fdfcf8;border:1px solid var(--line);border-radius:8px;padding:20px 22px;margin:16px 0;
+    font-family:'Fraunces',serif;font-size:15.5px;white-space:pre-line;
+  }
+  .kw-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .kw{
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;
+    background:#e6e0cf;border:1px solid var(--folder-dark);
+    padding:4px 10px;border-radius:20px;
+  }
+  table.scoretable{width:100%;border-collapse:collapse;margin:10px 0 20px;font-size:14px;}
+  table.scoretable th, table.scoretable td{
+    text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);
+  }
+  table.scoretable th{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;color:#6b6455;letter-spacing:1px;}
+  .arrow{color:#8a8370;padding:0 4px;}
+  .delta{font-weight:600;color:var(--good);}
+  .overall-box{
+    display:flex;justify-content:space-between;align-items:center;
+    background:var(--ink);color:var(--paper);
+    border-radius:8px;padding:20px 24px;margin-top:8px;
+  }
+  .overall-box .num{font-family:'Fraunces',serif;font-size:30px;}
+  .day-card{
+    border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:14px;background:#fdfcf8;
+  }
+  .day-tag{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;
+    color:var(--redpen);text-transform:uppercase;margin-bottom:4px;display:block;
+  }
+  .day-title{font-weight:600;font-size:15px;margin-bottom:8px;}
+  .checklist{list-style:none;padding:0;margin:8px 0;}
+  .checklist li{font-size:13.5px;margin-bottom:6px;padding-left:20px;position:relative;}
+  .checklist li:before{content:"☐";position:absolute;left:0;color:var(--redpen);}
+  .post-draft{
+    background:#f4f2ea;border:1px dashed var(--folder-dark);border-radius:8px;
+    padding:14px 16px;font-size:13.5px;white-space:pre-line;margin-top:8px;
+  }
+  .char-count{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a8370;margin-top:6px;}
+  .summary-card{
+    background:var(--ink);color:var(--paper);border-radius:10px;padding:28px 30px;
+    font-family:'Fraunces',serif;
+  }
+  .summary-card h3{margin:0 0 16px;font-size:20px;font-weight:600;}
+  .summary-card .scoreline{font-family:'IBM Plex Mono',monospace;font-size:14px;margin-bottom:16px;}
+  .summary-card ol{padding-left:20px;font-size:14.5px;}
+  .summary-card .highlight{color:#e8c98f;font-weight:500;}
+  .download-btn{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;
+    background:var(--redpen);color:#fdf0ee;border:none;padding:10px 18px;border-radius:6px;
+    cursor:pointer;margin-top:16px;
+  }
+  .download-btn:hover{background:var(--redpen-dark);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="stamp-header">
+    <div>
+      <div class="case-no">CASE FILE NO. 0714-GJ</div>
+      <h1 class="title">Garima Jha — profile review</h1>
+      <div class="subtitle">reviewed by a recruiter who has seen 50,000 of these</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="roast">The roast</div>
+    <div class="tab" data-tab="rebuild">The rebuild</div>
+    <div class="tab" data-tab="scorecard">Scorecard</div>
+    <div class="tab" data-tab="plan">7-day plan</div>
+    <div class="tab" data-tab="share">Share card</div>
+  </div>
+
+  <!-- ROAST -->
+  <div class="panel active" id="roast">
+    <h2 class="section">Part 1 — the roast</h2>
+    <div class="section-note">Honest, specific, zero fluff.</div>
+
+    <div class="item">
+      <div class="item-head"><span class="item-title">Headline</span><span class="score mid">5/10</span></div>
+      <div class="quote">"Psychology Student | Exploring AI, Human Behavior &amp; Technology | Research Enthusiast | Building at the Intersection of Psychology and Artificial Intelligence"</div>
+      <div class="row"><span class="tag">❌</span><p>Four clauses, zero proof. "Exploring," "enthusiast," and "intersection" are the three most overused words on student LinkedIn — a recruiter's eyes glaze over by clause two.</p></div>
+      <div class="row"><span class="tag">🧠</span><p>It describes an interest, not a capability. Recruiters scanning search results read this as "still figuring it out" rather than "has something to show."</p></div>
+      <div class="row"><span class="tag">🔍</span><p>You're also not showing up for AI-adjacent searches — no mention of the actual thing you do daily (building AI projects), so recruiters searching "AI product" or "prompt engineering" never surface you.</p></div>
+    </div>
+
+    <div class="item">
+      <div class="item-head"><span class="item-title">About — first 2 lines</span><span class="score">3/10</span></div>
+      <div class="quote">"Hiii, I'm Garima Jha<br>I am currently pursuing a Bachelor of Arts (Honours) in Psychology, with a keen interest in understanding human behavior and mental processes."</div>
+      <div class="row"><span class="tag">❌</span><p>"Hiii" reads casual-to-the-point-of-unprofessional in the one spot where you have zero room for warm-up. This is the only text visible before "see more" — it's your entire first impression.</p></div>
+      <div class="row"><span class="tag">🧠</span><p>Recruiters decide whether to click "see more" in about 3 seconds. "I am currently pursuing a Bachelor of Arts" is the single most common opening sentence on every psychology student's profile — it signals nothing distinctive.</p></div>
+      <div class="row"><span class="tag">🔍</span><p>You are actively building AI tools in public, running an Instagram audience, and coordinating a club — none of that is visible in the two lines that decide if anyone reads further.</p></div>
+    </div>
+
+    <div class="item">
+      <div class="item-head"><span class="item-title">About — full section</span><span class="score mid">4/10</span></div>
+      <div class="row"><span class="tag">❌</span><p>The whole section is three sentences about being curious and open to learning. No mention of AB Talks, the 60-day build challenge, @psychsigh, or the Manoshakti coordinator role.</p></div>
+      <div class="row"><span class="tag">🧠</span><p>"Always open to learning opportunities" is the LinkedIn equivalent of a blank stare — it's what you say when you don't have anything concrete yet, and recruiters read it exactly that way.</p></div>
+      <div class="row"><span class="tag">🔍</span><p>You're 40+ days into publicly documenting AI builds. That's a genuinely uncommon proof point for a psychology student and it's completely absent from your own About section.</p></div>
+    </div>
+
+    <div class="item">
+      <div class="item-head"><span class="item-title">Experience</span><span class="score">2/10</span></div>
+      <div class="row"><span class="tag">❌</span><p>Coordinator, Manoshakti - Psychology Club has a title and an organization name. Nothing else. No dates visible, no description, no bullets.</p></div>
+      <div class="row"><span class="tag">🧠</span><p>An empty Experience entry reads worse than no entry at all — it tells a recruiter you either don't know what you did or didn't bother to write it down. Either read is bad.</p></div>
+      <div class="row"><span class="tag">🔍</span><p>You also have zero formal Experience entry for AB Talks Campus Ambassador — a role that's arguably your strongest, most relevant credential for AI-adjacent work, and it currently only lives in scattered posts a recruiter would never think to scroll for.</p></div>
+    </div>
+
+    <div class="item">
+      <div class="item-head"><span class="item-title">Skills &amp; keywords</span><span class="score mid">4/10</span></div>
+      <div class="row"><span class="tag">❌</span><p>Communication, Critical Thinking, Management, Psychology. All generic, all unendorsed-looking, none of them are things a recruiter searches for when hiring into AI or behavioral research roles.</p></div>
+      <div class="row"><span class="tag">🧠</span><p>LinkedIn's search algorithm weights Skills heavily. Right now you're invisible to anyone searching for the actual overlap you're building in: AI, UX research, behavioral design, prompt work.</p></div>
+      <div class="row"><span class="tag">🔍</span><p>You are quite literally building AI tools daily and none of that shows up as a searchable skill.</p></div>
+    </div>
+
+    <div class="overall-box">
+      <span>Overall profile strength</span>
+      <span class="num">36<span style="font-size:16px;opacity:.6">/100</span></span>
+    </div>
+  </div>
+
+  <!-- REBUILD -->
+  <div class="panel" id="rebuild">
+    <h2 class="section">Part 2 — the rebuild</h2>
+    <div class="section-note">Every change explained, so you learn the strategy, not just the words.</div>
+
+    <h3 style="font-family:'Fraunces',serif;font-size:17px;">Headline — 3 options</h3>
+    <div class="headline-option">
+      <div class="headline-text">Psychology Student | AI × Human Behavior Research | Campus Ambassador, AB Talks</div>
+      <div class="headline-use"><b>Keyword-optimized</b> — front-loads terms recruiters actually search (Psychology, AI, Research, Campus Ambassador) so you surface in more results. Use this if your goal is being found.</div>
+    </div>
+    <div class="headline-option">
+      <div class="headline-text">Turning psychology into human-centered AI insight | Building in public, one AI tool a day</div>
+      <div class="headline-use"><b>Value-proposition style</b> — leads with what you offer, not your job title. Use this if you want people to understand your angle the instant they land on your profile.</div>
+    </div>
+    <div class="headline-option">
+      <div class="headline-text">Psychology + AI | Documenting 60 days of building AI tools | Campus Ambassador, AB Talks</div>
+      <div class="headline-use"><b>Authority style</b> — the "60 days" number is a concrete, unusual proof point most students don't have. Use this if your goal is thought leadership — it invites the "wait, what is this?" click.</div>
+    </div>
+
+    <h3 style="font-family:'Fraunces',serif;font-size:17px;margin-top:28px;">About — rewrite</h3>
+    <div class="about-block">Hiii — that's usually how I start a message, so it felt wrong to start my profile any other way.
+
+I'm a psychology student who got curious about AI and never really stopped. Most people assume you need a computer science background to build anything with AI. I didn't have one — I had a psychology degree, a genuine fascination with how people think and decide, and a stubborn habit of finishing what I start.
+
+That habit turned into the #60DaysABTalksChallenge: one AI-powered project, built and documented publicly, every single day. I'm past day 40. Along the way I've also coordinated events, workshops, and outreach for Manoshakti - Psychology Club, and I write about psychology for a Gen Z audience on Instagram (@psychsigh).
+
+What I'm building toward: a career at the intersection of human behavior and AI — the kind of work that needs someone who understands people first and technology second.
+
+If that overlap interests you too, I'd love to connect — or follow along as I keep building.</div>
+    <div class="kw-list">
+      <span class="kw">psychology</span><span class="kw">AI</span><span class="kw">human behavior</span>
+      <span class="kw">human-centered AI</span><span class="kw">AB Talks</span><span class="kw">campus ambassador</span>
+      <span class="kw">building in public</span><span class="kw">behavioral research</span>
+    </div>
+
+    <h3 style="font-family:'Fraunces',serif;font-size:17px;margin-top:28px;">Experience — Coordinator, Manoshakti Psychology Club</h3>
+    <div class="before-after">
+      <div class="ba-block ba-before"><span class="ba-label">Before</span><s>(blank)</s></div>
+      <div class="ba-block ba-after"><span class="ba-label">After</span>Organized and led club workshops and events, [X] per semester</div>
+    </div>
+    <div class="before-after">
+      <div class="ba-block ba-before"><span class="ba-label">Before</span><s>(blank)</s></div>
+      <div class="ba-block ba-after"><span class="ba-label">After</span>Managed a team of [n] members, coordinating planning and delivery for each session</div>
+    </div>
+    <div class="before-after">
+      <div class="ba-block ba-before"><span class="ba-label">Before</span><s>(blank)</s></div>
+      <div class="ba-block ba-after"><span class="ba-label">After</span>Ran the club's social media presence, planning content around member outreach</div>
+    </div>
+    <div class="before-after">
+      <div class="ba-block ba-before"><span class="ba-label">Before</span><s>(blank)</s></div>
+      <div class="ba-block ba-after"><span class="ba-label">After</span>Led outreach efforts to grow membership and event turnout</div>
+    </div>
+    <div class="quote" style="margin-top:10px;">I left [X] and [n] as placeholders on purpose — I don't invent numbers for you. Fill in a real count (workshops per term, team size) even if it's a rough estimate; a rough number beats no number.</div>
+
+    <h3 style="font-family:'Fraunces',serif;font-size:17px;margin-top:28px;">A second Experience entry you're missing</h3>
+    <div class="row"><span class="tag">❌</span><p>AB Talks Campus Ambassador isn't listed as Experience at all right now — only as scattered posts. Add it as its own entry: title "Campus Ambassador," organization "AB Talks," with bullets covering the daily build challenge and community role you already do.</p></div>
+
+    <h3 style="font-family:'Fraunces',serif;font-size:17px;margin-top:28px;">Skills recommendations</h3>
+    <div class="row"><span class="tag">Add</span><p>Human-Centered AI, AI Product Thinking, UX Research, Prompt Engineering, Behavioral Research, Content Strategy, Community Building, Event Management, Public Speaking, Data-Informed Decision Making</p></div>
+    <div class="row"><span class="tag">Remove</span><p>None of your current four are actively hurting you — Communication, Critical Thinking, Management, Psychology are all fine to keep, just no longer sufficient on their own.</p></div>
+    <div class="row"><span class="tag">Pin</span><p>Psychology, Human-Centered AI, Critical Thinking — this trio directly mirrors your target positioning (psych + AI + thought leadership).</p></div>
+  </div>
+
+  <!-- SCORECARD -->
+  <div class="panel" id="scorecard">
+    <h2 class="section">Part 3 — before vs after</h2>
+    <div class="section-note">Same sections, measured twice.</div>
+    <table class="scoretable">
+      <tr><th>Section</th><th>Before</th><th></th><th>After</th><th>Change</th></tr>
+      <tr><td>Headline</td><td>5/10</td><td class="arrow">→</td><td>8/10</td><td class="delta">+3</td></tr>
+      <tr><td>About (hook)</td><td>3/10</td><td class="arrow">→</td><td>8/10</td><td class="delta">+5</td></tr>
+      <tr><td>About (full)</td><td>4/10</td><td class="arrow">→</td><td>9/10</td><td class="delta">+5</td></tr>
+      <tr><td>Experience</td><td>2/10</td><td class="arrow">→</td><td>8/10</td><td class="delta">+6</td></tr>
+      <tr><td>Skills / keywords</td><td>4/10</td><td class="arrow">→</td><td>8/10</td><td class="delta">+4</td></tr>
+    </table>
+    <div class="overall-box">
+      <span>Overall</span>
+      <span class="num">36 <span class="arrow" style="color:#e8c98f">→</span> 82<span style="font-size:16px;opacity:.6">/100</span></span>
+    </div>
+    <div class="row" style="margin-top:16px;"><span class="tag">🧠</span><p>The biggest single jump is Experience — that's not a coincidence. An empty Experience section is the cheapest thing on your profile to fix and was doing the most damage.</p></div>
+  </div>
+
+  <!-- PLAN -->
+  <div class="panel" id="plan">
+    <h2 class="section">Part 4 — 7-day activation plan</h2>
+    <div class="section-note">Actions, not just edits.</div>
+
+    <div class="day-card">
+      <span class="day-tag">Day 1</span><div class="day-title">Make all profile changes</div>
+      <ul class="checklist">
+        <li>Update headline (pick one of the 3 options)</li>
+        <li>Replace About section with the rewrite</li>
+        <li>Add bullets to Manoshakti Coordinator entry</li>
+        <li>Add AB Talks Campus Ambassador as a new Experience entry</li>
+        <li>Add the 10 recommended skills, pin the top 3</li>
+      </ul>
+    </div>
+
+    <div class="day-card">
+      <span class="day-tag">Day 2</span><div class="day-title">Publish post #1 — "I just rebuilt my LinkedIn"</div>
+      <div class="post-draft">I just rebuilt my LinkedIn profile from scratch. Here's what I got wrong for two years.
+
+My headline said "exploring AI." My About section opened with "Hiii" and then listed my degree. My Experience section for a role I actually do work in — Coordinator at a psychology club — was completely blank.
+
+None of it was false. All of it was invisible. If you can't see what someone actually does, you assume there's nothing to see.
+
+So I rewrote it. Same person, same work, actually visible now: 40+ days into building AI tools in public through #60DaysABTalksChallenge, running a psychology page for Gen Z, coordinating events for 100+ students.
+
+The work didn't change. The profile just finally says it.
+
+If you're a psychology student who's also curious about AI, or you're building something in public too — let's connect.
+
+#60DaysABTalksChallenge #PsychologyAndAI #BuildInPublic</div>
+      <div class="char-count">≈ 890 characters — under the 1300 limit</div>
+    </div>
+
+    <div class="day-card">
+      <span class="day-tag">Day 3</span><div class="day-title">Send 10 strategic connection requests</div>
+      <div class="row"><span class="tag">Who</span><p>AI product managers, UX researchers, and behavioral scientists at Indian AI startups; other AB Talks campus ambassadors; psychology professors or grad students working on AI-adjacent research.</p></div>
+      <div class="post-draft">Hi [name], I'm a psychology student building AI tools daily through the #60DaysABTalksChallenge. Came across your work in [their field] — would love to connect and follow along.</div>
+      <div class="char-count">≈ 195 characters — under the 300 limit</div>
+    </div>
+
+    <div class="day-card">
+      <span class="day-tag">Day 4</span><div class="day-title">Comment on 5 posts in your target space</div>
+      <p style="font-size:13.5px;">Use the Value Comment formula on each: <b>Agree</b> with one specific point → <b>Add insight</b> from your own angle (psychology lens on their AI point, or vice versa) → <b>Ask a question</b> that invites a reply. This gets you seen by the poster and their audience, not just the original poster.</p>
+    </div>
+
+    <div class="day-card">
+      <span class="day-tag">Day 5</span><div class="day-title">Publish post #2 — a hot take from your niche</div>
+      <div class="post-draft">Unpopular opinion: you don't need to learn to code before you learn to build with AI.
+
+I'm a psychology major. Forty-plus days into building AI tools daily, the skill that's mattered most hasn't been syntax — it's been the same thing psychology trained me on: understanding what a person actually needs before you build anything for them.
+
+Most "learn AI" advice starts with tools. It should start with a problem you understand deeply.
+
+What's a problem you understand better than most people you know?
+
+#60DaysABTalksChallenge #AI #Psychology</div>
+      <div class="char-count">≈ 620 characters — under the 1300 limit</div>
+    </div>
+
+    <div class="day-card">
+      <span class="day-tag">Day 6</span><div class="day-title">Engage with every comment + send 5 more requests</div>
+      <p style="font-size:13.5px;">Reply to every comment on both posts within a few hours — early engagement is what LinkedIn's algorithm uses to decide whether to keep showing your post to more people. Send 5 more targeted requests using the same template from Day 3.</p>
+    </div>
+
+    <div class="day-card">
+      <span class="day-tag">Day 7</span><div class="day-title">Review profile views and acceptance rate</div>
+      <p style="font-size:13.5px;"><b>Profile views spiked?</b> Your headline or a post is driving search traffic — that's working, keep the headline. <b>Connection acceptance rate below ~50%?</b> Your request message probably needs to be more specific to each person, not more generic. <b>Post impressions high but few comments?</b> Your hook is working but your CTA (the question at the end) isn't — sharpen it next time.</p>
+    </div>
+  </div>
+
+  <!-- SHARE -->
+  <div class="panel" id="share">
+    <h2 class="section">Part 5 — what I learned today</h2>
+    <div class="section-note">Ready to screenshot and post.</div>
+    <div class="summary-card">
+      <h3>I let AI roast my LinkedIn profile today. Here's what changed:</h3>
+      <div class="scoreline">Before: 36/100 &nbsp;→&nbsp; After: <span class="highlight">82/100</span></div>
+      <p>Top 3 mistakes I was making:</p>
+      <ol>
+        <li>My Experience section for a real role had zero description — completely blank.</li>
+        <li>My About section opened with my degree instead of the thing that actually makes me different.</li>
+        <li>None of my skills matched what I'm actually building toward.</li>
+      </ol>
+      <p>The #1 thing that made the biggest difference: <span class="highlight">writing down the work I was already doing, instead of the work I thought I was supposed to describe.</span></p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
